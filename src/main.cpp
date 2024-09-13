@@ -19,8 +19,8 @@ void setup() {
   tft.setTextSize(2); // Set text size (change for bigger/smaller text)
 
   // Center text horizontally by calculating the text width and using half of the screen width
-  String option1 = "Press 0 for Option 1";
-  String option2 = "Press 14 for Option 2";
+  String option1 = "Press 0 for Cross Road";
+  String option2 = "Press 14 for Flappy Bird";
 
   int screenWidth = tft.width();
   int option1Width = tft.textWidth(option1); // Get the width of the option1 text
@@ -50,6 +50,8 @@ void loop() {
       tft.fillScreen(TFT_BLACK);
       tft.setCursor(10,10);
       tft.print("Option 1 Selected");
+
+      //Here will probably go into the game loop
       notSelected = 1;
       break;
     }
@@ -57,6 +59,8 @@ void loop() {
       tft.fillScreen(TFT_BLACK);
       tft.setCursor(10,10);
       tft.print("Option 2 Selected");
+
+      //Here will probably go into the game loop
       notSelected = 1;
       break;
     }
