@@ -1,6 +1,7 @@
-#include <TFT_eSPI.h> // Library for the display
+#include <TFT_eSPI.h>
+#include <joystick.h>
 
-TFT_eSPI tft = TFT_eSPI(); // Create an instance of the display
+TFT_eSPI tft = TFT_eSPI(); // Define the tft object here
 
 const int buttonA = 0;
 const int buttonB = 14;
@@ -46,21 +47,23 @@ void loop() {
     int buttonAState = digitalRead(buttonA);
     int buttonBState = digitalRead(buttonB);
 
-    if (buttonAState == LOW){
+    if (buttonAState == LOW) {
       tft.fillScreen(TFT_BLACK);
-      tft.setCursor(10,10);
+      tft.setCursor(10, 10);
       tft.print("Option 1 Selected");
 
-      //Here will probably go into the game loop
+      // Call the joystick control function here
+      runJoystickControl();
+
       notSelected = 1;
       break;
-    }
-    else if (buttonBState == LOW){
+    } else if (buttonBState == LOW) {
       tft.fillScreen(TFT_BLACK);
-      tft.setCursor(10,10);
+      tft.setCursor(10, 10);
       tft.print("Option 2 Selected");
 
-      //Here will probably go into the game loop
+      // Implement the logic for Flappy Bird or other game here
+
       notSelected = 1;
       break;
     }
