@@ -1,71 +1,84 @@
-#include <TFT_eSPI.h>
-#include <joystick.h>
+// #include <TFT_eSPI.h>
+// #include <joystick.h>
+// #include <EEPROM.h>
 
-TFT_eSPI tft = TFT_eSPI(); // Define the tft object here
+// #define EEPROM_SIZE 512
+// #define EEPROM_VOLUME_ADDRESS 0
 
-const int buttonA = 0;
-const int buttonB = 14;
-int notSelected = 0;
+// TFT_eSPI tft = TFT_eSPI(); // Define the tft object here
 
-void setup() {
-  pinMode(buttonA, INPUT);
-  pinMode(buttonB, INPUT);
+// const int buttonA = 0;
+// const int buttonB = 14;
+// int notSelected = 0;
 
-  tft.init();        // Initialize the display
-  tft.setRotation(1); // Set the orientation (optional, you can change 0-3 for different rotations)
+// void setup() {
+//   Serial.begin(115200);
+//   pinMode(buttonA, INPUT_PULLUP);
+//   pinMode(buttonB, INPUT_PULLUP);
 
-  tft.fillScreen(TFT_BLACK); // Clear the screen and set it to black
-  tft.setTextColor(TFT_WHITE, TFT_BLACK); // Set text color and background color
+//   if (!EEPROM.begin(EEPROM_SIZE)) {
+//     Serial.println("Failed to initialize EEPROM");
+//     // Handle error as needed
+//   } else {
+//     Serial.println("EEPROM initialized");
+//   }
 
-  tft.setTextSize(2); // Set text size (change for bigger/smaller text)
 
-  // Center text horizontally by calculating the text width and using half of the screen width
-  String option1 = "Press 0 for Cross Road";
-  String option2 = "Press 14 for Flappy Bird";
+//   tft.init();        // Initialize the display
+//   tft.setRotation(1); // Set the orientation (optional, you can change 0-3 for different rotations)
 
-  int screenWidth = tft.width();
-  int option1Width = tft.textWidth(option1); // Get the width of the option1 text
-  int option2Width = tft.textWidth(option2); // Get the width of the option2 text
+//   tft.fillScreen(TFT_BLACK); // Clear the screen and set it to black
+//   tft.setTextColor(TFT_WHITE, TFT_BLACK); // Set text color and background color
 
-  // Calculate the X positions for both options (centered horizontally)
-  int option1X = (screenWidth - option1Width) / 2;
-  int option2X = (screenWidth - option2Width) / 2;
+//   tft.setTextSize(2); // Set text size (change for bigger/smaller text)
 
-  // Set Y positions to center vertically as needed
-  int option1Y = 50;
-  int option2Y = option1Y + 30;
+//   // Center text horizontally by calculating the text width and using half of the screen width
+//   String option1 = "Press 0 for Cross Road";
+//   String option2 = "Press 14 for Flappy Bird";
 
-  tft.setCursor(option1X, option1Y);
-  tft.print(option1);
+//   int screenWidth = tft.width();
+//   int option1Width = tft.textWidth(option1); // Get the width of the option1 text
+//   int option2Width = tft.textWidth(option2); // Get the width of the option2 text
 
-  tft.setCursor(option2X, option2Y);
-  tft.print(option2);
-}
+//   // Calculate the X positions for both options (centered horizontally)
+//   int option1X = (screenWidth - option1Width) / 2;
+//   int option2X = (screenWidth - option2Width) / 2;
 
-void loop() {
-  while(!notSelected){
-    int buttonAState = digitalRead(buttonA);
-    int buttonBState = digitalRead(buttonB);
+//   // Set Y positions to center vertically as needed
+//   int option1Y = 50;
+//   int option2Y = option1Y + 30;
 
-    if (buttonAState == LOW) {
-      tft.fillScreen(TFT_BLACK);
-      tft.setCursor(10, 10);
-      tft.print("Option 1 Selected");
+//   tft.setCursor(option1X, option1Y);
+//   tft.print(option1);
 
-      // Call the joystick control function here
-      runJoystickControl();
+//   tft.setCursor(option2X, option2Y);
+//   tft.print(option2);
+// }
 
-      notSelected = 1;
-      break;
-    } else if (buttonBState == LOW) {
-      tft.fillScreen(TFT_BLACK);
-      tft.setCursor(10, 10);
-      tft.print("Option 2 Selected");
+// void loop() {
+//   while(!notSelected){
+//     int buttonAState = digitalRead(buttonA);
+//     int buttonBState = digitalRead(buttonB);
 
-      // Implement the logic for Flappy Bird or other game here
+//     if (buttonAState == LOW) {
+//       tft.fillScreen(TFT_BLACK);
+//       tft.setCursor(10, 10);
+//       tft.print("Option 1 Selected");
 
-      notSelected = 1;
-      break;
-    }
-  }
-}
+//       // Call the joystick control function here
+//       runJoystickControl();
+
+//       notSelected = 1;
+//       break;
+//     } else if (buttonBState == LOW) {
+//       tft.fillScreen(TFT_BLACK);
+//       tft.setCursor(10, 10);
+//       tft.print("Option 2 Selected");
+
+//       // Implement the logic for Flappy Bird or other game here
+
+//       notSelected = 1;
+//       break;
+//     }
+//   }
+// }
