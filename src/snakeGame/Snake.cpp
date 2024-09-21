@@ -10,6 +10,8 @@ TFT_eSprite sprite = TFT_eSprite(&tft);
 #define leftButtonPin 0
 #define rightButtonPin 14
 
+const int EEPROM_SNAKE_ADDR = 1;
+
 // Joystick control pins
 const int joystickXPin = 2; // Adjust to your hardware setup (e.g., A0, A1)
 
@@ -55,6 +57,11 @@ int howHard = 0;
 String diff[3] = {"EASY","NORMAL","HARD"};
 bool ready = 1;
 long readyTime = 0;
+
+void setHighScore(int highScore) {
+    EEPROM.put(EEPROM_SNAKE_ADDR, highScore);  // Store high score in EEPROM
+    EEPROM.commit();  // Commit the EEPROM changes
+}
 
 void checkGameOver() // Check if the game is over
 {
@@ -115,10 +122,15 @@ void run() // Run function to update snake's position
         }
         sprite.fillRoundRect(foodX*10 + 1, foodY*10 + 1, 8, 8, 1, TFT_RED);
         sprite.fillRoundRect(foodX*10 + 3, foodY*10 + 3, 4, 4, 1, 0xFE18);
+
     }
     else
     {
         sprite.pushImage(0,0,170,170,gameOver);
+
+        if (size < highScore || highScore == 0) {
+            setHighScore(size);
+        }
     }
     sprite.pushSprite(0,30);
 }

@@ -80,7 +80,6 @@ void loop() {
             tft.setCursor(10, 10);
             tft.print("Reaction Game Selected");
 
-            // Run Reaction Game
             runReactionGame();
 
             notSelected = 1;
