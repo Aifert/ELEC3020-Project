@@ -1,97 +1,91 @@
-#include <ESP32Servo.h>
-#include "joystick.h"
+// // joystick.cpp
+// #include "shared.h"
+// #include "joystick.h"
 
-const int SwitchPin = 1;
-const int xPin = 2;
-const int yPin = 3;
-const int servoPinX = 43;  // The pin for the SG90 servo
+// // Define Joystick Pins
+// const int xPin = 2; // Joystick X-axis
+// const int yPin = 3; // Joystick Y-axis
 
-Servo servoX;  // Create a servo object for X movement (controlling SG90)
+// // Deadzone and Thresholds
+// const int deadZone = 10;
+// const int noiseThreshold = 5;
+// const int numReadings = 10;
 
-const int deadZone = 10;  // Set the dead zone threshold
-const int noiseThreshold = 5;  // Minimum difference to register movement
-const int numReadings = 10;  // Number of samples to average
+// // Variables for Smoothing
+// int readingsX[numReadings];
+// int readIndexX = 0;
+// int totalX = 0;
+// int averageX = 0;
 
-int readingsX[numReadings];   // Array to store readings for X
-int readIndex = 0;            // Index of the current reading
-int totalX = 0;               // Total of X readings
-int averageX = 0;             // The smoothed X value
+// int readingsY[numReadings];
+// int readIndexY = 0;
+// int totalY = 0;
+// int averageY = 0;
 
-int neutralX = 512;           // Neutral X (centered position)
+// int neutralX = 512;
+// int neutralY = 512;
 
-void setupJoystick() {
-    // Initialize all the readings to 0
-    for (int i = 0; i < numReadings; i++) {
-        readingsX[i] = 0;
-    }
-}
+// // Function to Initialize Joystick Readings
+// void setupJoystick() {
+//     for (int i = 0; i < numReadings; i++) {
+//         readingsX[i] = neutralX;
+//         readingsY[i] = neutralY;
+//     }
+// }
 
-void detectPosition() {
-    static int previousX = 0; // Start relative to neutral at 0
+// // **Function to Detect Joystick Direction (Only Defined Here)**
+// Direction readJoystickDirection() {
+//     // Read X-axis
+//     int x_position = analogRead(xPin);
+//     totalX = totalX - readingsX[readIndexX];
+//     readingsX[readIndexX] = x_position;
+//     totalX = totalX + readingsX[readIndexX];
+//     averageX = totalX / numReadings;
+//     readIndexX = (readIndexX + 1) % numReadings;
 
-    int x_position = analogRead(xPin);
+//     // Read Y-axis
+//     int y_position = analogRead(yPin);
+//     totalY = totalY - readingsY[readIndexY];
+//     readingsY[readIndexY] = y_position;
+//     totalY = totalY + readingsY[readIndexY];
+//     averageY = totalY / numReadings;
+//     readIndexY = (readIndexY + 1) % numReadings;
 
-    // Apply smoothing using a moving average for X
-    totalX = totalX - readingsX[readIndex];  // Subtract the last reading from total
-    readingsX[readIndex] = x_position;       // Read the new X value
-    totalX = totalX + readingsX[readIndex];  // Add the new reading to the total
-    averageX = totalX / numReadings;         // Calculate the average X
+//     // Apply Deadzone
+//     if (abs(averageX - neutralX) < deadZone) {
+//         averageX = neutralX;
+//     }
+//     if (abs(averageY - neutralY) < deadZone) {
+//         averageY = neutralY;
+//     }
 
-    // Advance to the next position in the array
-    readIndex++;
-    if (readIndex >= numReadings) {
-        readIndex = 0;  // Wrap around if we've reached the end of the array
-    }
+//     // Determine Direction
+//     const int threshold = 600; // Adjust based on calibration
 
-    // Apply dead zone logic for X
-    if (abs(averageX - neutralX) < deadZone) {
-        averageX = neutralX;  // Neutral X position
-    }
+//     if (averageY < threshold && averageY > (1023 - threshold)) {
+//         // Neutral Y
+//     } else if (averageY < threshold) {
+//         return UP;
+//     } else if (averageY > (1023 - threshold)) {
+//         return DOWN;
+//     }
 
-    // Calculate the relative position from the neutral point
-    int relativeX = averageX - neutralX;
+//     if (averageX < threshold && averageX > (1023 - threshold)) {
+//         // Neutral X
+//     } else if (averageX < threshold) {
+//         return LEFT;
+//     } else if (averageX > (1023 - threshold)) {
+//         return RIGHT;
+//     }
 
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(0,0);
-    tft.print("X : \n");
-    tft.print(relativeX);
+//     return NONE;
+// }
 
-    // Only update the servo if the change exceeds the noise threshold
-    if (abs(relativeX - previousX) > noiseThreshold) {
-        // Map the relative joystick values to servo positions (0-180 degrees)
-        int servoXPos = map(relativeX + neutralX, 0, 1023, 0, 180);  // Map X to 180-degree SG90 range
+// // **Function to Initialize Snake Game via Joystick**
+// void initialiseSnakeGame() {
+//     setupSnakeGame(); // Defined in snake.cpp
 
-        // Move the servo to the mapped position
-        servoX.write(servoXPos);
-
-        // Update the previous position to the new relative value
-
-
-    }
-
-
-    delay(50);  // Short delay for smooth servo movement
-}
-
-void runJoystickControl() {
-    pinMode(SwitchPin, INPUT);
-    pinMode(xPin, INPUT);
-    pinMode(yPin, INPUT);  // Even though you're using only 1 servo, keep the Y pin for future use if needed
-
-    // Initialize the servo pin
-    servoX.attach(servoPinX);  // Attach the X servo (SG90) to the servoPinX
-
-    // Initialize smoothing arrays
-    setupJoystick();
-
-    tft.init();
-    tft.setRotation(1);
-
-    tft.fillScreen(TFT_BLACK);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setTextSize(2);
-
-    while (true) {
-        detectPosition();
-    }
-}
+//     while (true) {
+//         runSnakeGame(); // Run the game loop defined in snake.cpp
+//     }
+// }

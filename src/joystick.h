@@ -1,10 +1,12 @@
-#ifndef JOYSTICK_H
-#define JOYSTICK_H
+// #ifndef JOYSTICK_H
+// #define JOYSTICK_H
 
-#include <TFT_eSPI.h>
+// #include <TFT_eSPI.h>
 
-extern TFT_eSPI tft;
+// extern TFT_eSPI tft;
 
-void runJoystickControl();
+// void initialiseSnakeGame();
 
-#endif
+// void setupJoystick();
+
+// #endif
