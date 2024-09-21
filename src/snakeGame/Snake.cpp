@@ -58,11 +58,6 @@ String diff[3] = {"EASY","NORMAL","HARD"};
 bool ready = 1;
 long readyTime = 0;
 
-void setHighScore(int highScore) {
-    EEPROM.put(EEPROM_SNAKE_ADDR, highScore);  // Store high score in EEPROM
-    EEPROM.commit();  // Commit the EEPROM changes
-}
-
 void checkGameOver() // Check if the game is over
 {
     if(x[0] < 0 || x[0] >= 17 || y[0] < 0 || y[0] >= 17)
@@ -127,10 +122,6 @@ void run() // Run function to update snake's position
     else
     {
         sprite.pushImage(0,0,170,170,gameOver);
-
-        if (size < highScore || highScore == 0) {
-            setHighScore(size);
-        }
     }
     sprite.pushSprite(0,30);
 }
