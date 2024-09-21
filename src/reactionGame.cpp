@@ -107,8 +107,6 @@ void runReactionGame() {
         delay(10);  // Small delay to prevent CPU hogging
     }
 
-    delay(1000);  // Short delay before game starts
-
     // Start the game
     while (!gameEnded) {
         processButtonClick(highScore);
