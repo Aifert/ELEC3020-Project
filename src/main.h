@@ -5,6 +5,20 @@
 
 extern TFT_eSPI tft;
 
+// Structure definition
+typedef struct struct_message {
+    int id;
+    int big;
+    int a;
+    int b;
+    int x;
+    int y;
+} struct_message;
+
+extern struct_message myData;
+extern struct_message controller1;
+extern struct_message controller2;
+
 // Function prototypes
 void setup();
 void loop();
