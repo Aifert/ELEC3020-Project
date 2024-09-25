@@ -1,27 +1,86 @@
 // main.cpp
 #include <TFT_eSPI.h>
 #include <EEPROM.h>
-#include "snakeGame/Snake.h"
+#include <WiFi.h>
+#include <esp_now.h>
+// #include "snakeGame/Snake.h"
 #include "reactionGame.h"
 #include "main.h"
+
 
 #define EEPROM_SIZE 4096
 #define HIGH_SCORE_ADDRESS 0
 
+struct_message myData;
+struct_message controller1 = {1, 1, 1, 1, 1, 1};
+struct_message controller2 = {2, 1, 1, 1, 1, 1};
+
 // Define Buttons and Switch Pins
-const int buttonA = 0;
-const int buttonB = 14;
+// const int buttonA = 0;
+// const int buttonB = 14;
+const int buttonC = 15;
 const int switchPin = 1;
 int notSelected = 0;
 int highScore = 0;
 
+// Create a struct_message called myData
+
 TFT_eSPI tft = TFT_eSPI();
+void displayGameOptions() {
+    tft.fillScreen(TFT_BLACK);
+    String option1 = "Press A for Snake Game";
+    String option2 = "Press B for Reaction Game";
+
+    int screenWidth = tft.width();
+    int option1Width = tft.textWidth(option1);
+    int option2Width = tft.textWidth(option2);
+
+    int option1X = (screenWidth - option1Width) / 2;
+    int option2X = (screenWidth - option2Width) / 2;
+
+    int option1Y = 50;
+    int option2Y = option1Y + 30;
+
+    tft.setCursor(option1X, option1Y);
+    tft.print(option1);
+
+    tft.setCursor(option2X, option2Y);
+    tft.print(option2);
+
+    notSelected = 0;
+}
+
+
+void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
+    memcpy(&myData, incomingData, sizeof(myData));
+
+    if (myData.id == 1) {
+        controller1 = myData;
+        Serial.println("Controller 1 Data Received");
+        Serial.println(controller1.a);
+        Serial.println(controller1.b);
+    } else if (myData.id == 2) {
+        controller2 = myData;
+        Serial.println("Controller 2 Data Received");
+        Serial.println(controller2.a);
+        Serial.println(controller2.b);
+    }
+}
 
 void setup() {
     Serial.begin(115200);
-    pinMode(buttonA, INPUT_PULLUP);
-    pinMode(buttonB, INPUT_PULLUP);
+    // pinMode(buttonA, INPUT_PULLUP);
+    // pinMode(buttonB, INPUT_PULLUP);
+    pinMode(buttonC, INPUT_PULLUP);
     pinMode(switchPin, INPUT_PULLUP);
+
+    WiFi.mode(WIFI_STA);
+    if (esp_now_init() != ESP_OK) {
+        Serial.println("Error initializing ESP-NOW");
+        return;
+    }
+
+    esp_now_register_recv_cb(OnDataRecv);
 
     // Initialize EEPROM
     if (!EEPROM.begin(EEPROM_SIZE)) {
@@ -40,52 +99,58 @@ void setup() {
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
     tft.setTextSize(2);
 
-    // Display Game Options
-    String option1 = "Press 0 for Snake Game";
-    String option2 = "Press 14 for Reaction Game";
-
-    int screenWidth = tft.width();
-    int option1Width = tft.textWidth(option1);
-    int option2Width = tft.textWidth(option2);
-
-    int option1X = (screenWidth - option1Width) / 2;
-    int option2X = (screenWidth - option2Width) / 2;
-
-    int option1Y = 50;
-    int option2Y = option1Y + 30;
-
-    tft.setCursor(option1X, option1Y);
-    tft.print(option1);
-
-    tft.setCursor(option2X, option2Y);
-    tft.print(option2);
+    // Display initial game options
+    displayGameOptions();
 }
 
 void loop() {
-    while(!notSelected) {
-        int buttonAState = digitalRead(buttonA);
-        int buttonBState = digitalRead(buttonB);
+    if (controller2.y == 1) {
+        displayGameOptions();
+    }
 
-        if (buttonAState == LOW) {
+    while (!notSelected) {
+        if (controller2.a == 0) {
             tft.fillScreen(TFT_BLACK);
             tft.setCursor(10, 10);
             tft.print("Snake Game Selected");
 
-            setupSnakeGame();
+            // setupSnakeGame();
 
             notSelected = 1;
             break;
-        } else if (buttonBState == LOW) {
+        } else if (controller2.b == 0) {
             tft.fillScreen(TFT_BLACK);
             tft.setCursor(10, 10);
             tft.print("Reaction Game Selected");
 
             runReactionGame();
 
+            // Display high score and wait for button press
+            tft.fillScreen(TFT_BLACK);
+            tft.setCursor(10, 10);
+            tft.print("High Score: ");
+            tft.print(highScore);
+            tft.setCursor(10, 40);
+            tft.print("Press any button to continue");
+
+            // Wait for button press
+            bool buttonPressed = false;
+            while (!buttonPressed) {
+                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0) {
+                    buttonPressed = true;
+                }
+                delay(50); // Small delay to prevent excessive polling
+            }
+
             notSelected = 1;
             break;
         }
 
         delay(100); // Debounce delay
+    }
+
+    // Return to main menu
+    if (notSelected) {
+        displayGameOptions();
     }
 }
