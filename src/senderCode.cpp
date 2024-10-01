@@ -10,7 +10,8 @@
 // #define buttonY 11
 
 // // REPLACE WITH THE RECEIVER'S MAC Address
-// uint8_t broadcastAddress[] = {0x30, 0x30, 0xf9, 0x59, 0xe2, 0x90};
+// // uint8_t broadcastAddress[] = {0x30, 0x30, 0xf9, 0x59, 0xe2, 0x90};
+// uint8_t broadcastAddress[] = {0x84, 0xFC, 0xE6, 0x64, 0xA7, 0xA4};
 // // My Mac Address is 0x30, 0x30, 0xf9, 0x59, 0xe2, 0x90
 
 // // Structure example to send data
@@ -30,10 +31,14 @@
 // // Create peer interface
 // esp_now_peer_info_t peerInfo;
 
+// // TFT display object
+// TFT_eSPI tft = TFT_eSPI();
+
 // // callback when data is sent
 // void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 //   Serial.print("\r\nLast Packet Send Status:\t");
 //   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+//   tft.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 // }
 
 // void setup() {
@@ -46,12 +51,20 @@
 //   // Init Serial Monitor
 //   Serial.begin(115200);
 
+//   // Initialize TFT display
+//   tft.init();
+//   tft.setRotation(1);
+//   tft.fillScreen(TFT_BLACK);
+//   tft.setTextColor(TFT_WHITE, TFT_BLACK);
+//   tft.setTextSize(2);
+
 //   // Set device as a Wi-Fi Station
 //   WiFi.mode(WIFI_STA);
 
 //   // Init ESP-NOW
 //   if (esp_now_init() != ESP_OK) {
 //     Serial.println("Error initializing ESP-NOW");
+//     tft.println("Error initializing ESP-NOW");
 //     return;
 //   }
 
@@ -67,8 +80,12 @@
 //   // Add peer
 //   if (esp_now_add_peer(&peerInfo) != ESP_OK){
 //     Serial.println("Failed to add peer");
+//     tft.println("Failed to add peer");
 //     return;
 //   }
+
+//   Serial.println("Setup complete");
+//   tft.println("Setup complete");
 // }
 
 // void loop() {
@@ -98,17 +115,31 @@
 
 //   // Send message via ESP-NOW only if data has changed
 //   if (dataChanged) {
+//     tft.fillScreen(TFT_BLACK);
+//     tft.setCursor(0, 0);
+//     tft.println("Instruction sent:");
+//     Serial.println("Instruction sent:");
+
+//     tft.println("big: " + String(myData.big));
+//     tft.println("a: " + String(myData.a));
+//     tft.println("b: " + String(myData.b));
+//     tft.println("x: " + String(myData.x));
+//     tft.println("y: " + String(myData.y));
+
 //     Serial.println("big: " + String(myData.big));
 //     Serial.println("a: " + String(myData.a));
 //     Serial.println("b: " + String(myData.b));
 //     Serial.println("x: " + String(myData.x));
 //     Serial.println("y: " + String(myData.y));
+
 //     result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
 
 //     if (result == ESP_OK) {
 //       Serial.println("Sent with success");
+//       tft.println("Sent with success");
 //     } else {
 //       Serial.println("Error sending the data");
+//       tft.println("Error sending the data");
 //     }
 //   }
 // }
