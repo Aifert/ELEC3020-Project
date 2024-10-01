@@ -15,34 +15,6 @@ unsigned long lastButtonPress = 0;  // For debouncing
 
 const int debounceDelay = 200;  // 200 ms debounce time
 
-// Structure to receive data
-// typedef struct struct_message {
-//     int id;
-//     int big;
-//     int a;
-//     int b;
-//     int x;
-//     int y;
-// } struct_message;
-
-// // Create a struct_message called myData
-// struct_message myData;
-
-// // Create a structure to hold the readings from each board
-// struct_message controller1;
-// struct_message controller2;
-
-// Callback function that will be executed when data is received
-// void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
-//     memcpy(&myData, incomingData, sizeof(myData));
-
-//     if (myData.id == 1) {
-//         controller1 = myData;
-//     } else if (myData.id == 2) {
-//         controller2 = myData;
-//     }
-// }
-
 void setHighScore(int highScore) {
     EEPROM.put(EEPROM_ADDR, highScore);  // Store high score in EEPROM
     EEPROM.commit();  // Commit the EEPROM changes
@@ -53,7 +25,6 @@ void processButtonClick(int& highScore) {
     bool controller2Pressed = controller2.big == 0;
     bool wirelessButtonState = controller1Pressed || controller2Pressed;
 
-    // Combine physical and wireless button states
     bool buttonPressed = wirelessButtonState;
 
     // Debounce check
@@ -105,12 +76,16 @@ void processButtonClick(int& highScore) {
                 setHighScore(highScore);
                 tft.setCursor(20, 140);
                 tft.println("New High Score!");
+
+                delay(1000);
             }
 
             tft.setCursor(20, 180);
             tft.print("High Score: ");
             tft.print(highScore);
             tft.println(" ms");
+
+            delay(1000);
 
             gameEnded = true;
         }

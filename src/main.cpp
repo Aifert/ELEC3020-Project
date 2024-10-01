@@ -3,7 +3,7 @@
 #include <EEPROM.h>
 #include <WiFi.h>
 #include <esp_now.h>
-// #include "snakeGame/Snake.h"
+#include "snakeGame/Snake.h"
 #include "reactionGame.h"
 #include "main.h"
 
@@ -26,6 +26,25 @@ int highScore = 0;
 // Create a struct_message called myData
 
 TFT_eSPI tft = TFT_eSPI();
+
+// Function to print MAC address
+void printMacAddress() {
+    uint8_t mac[6];
+    WiFi.macAddress(mac);
+    char macStr[18];
+    snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    Serial.print("MAC Address: ");
+    Serial.println(macStr);
+
+    tft.fillScreen(TFT_BLACK);
+    tft.setCursor(0, 0);
+    tft.println("MAC Address:");
+    tft.println(macStr);
+    delay(5000);  // Display for 5 seconds
+}
+
 void displayGameOptions() {
     tft.fillScreen(TFT_BLACK);
     String option1 = "Press A for Snake Game";
@@ -56,15 +75,10 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
 
     if (myData.id == 1) {
         controller1 = myData;
-        Serial.println("Controller 1 Data Received");
-        Serial.println(controller1.a);
-        Serial.println(controller1.b);
     } else if (myData.id == 2) {
         controller2 = myData;
-        Serial.println("Controller 2 Data Received");
-        Serial.println(controller2.a);
-        Serial.println(controller2.b);
     }
+    Serial.println();
 }
 
 void setup() {
@@ -99,6 +113,9 @@ void setup() {
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
     tft.setTextSize(2);
 
+    // Print MAC address
+    printMacAddress();
+
     // Display initial game options
     displayGameOptions();
 }
@@ -109,12 +126,35 @@ void loop() {
     }
 
     while (!notSelected) {
-        if (controller2.a == 0) {
+        if (controller2.y == 0) {
             tft.fillScreen(TFT_BLACK);
             tft.setCursor(10, 10);
             tft.print("Snake Game Selected");
 
-            // setupSnakeGame();
+            setupSnakeGame();
+
+            tft.fillScreen(TFT_BLACK);
+            tft.setTextColor(TFT_WHITE, TFT_BLACK);
+            tft.setTextSize(2);
+            tft.setRotation(1);
+            tft.setCursor(10, 40);
+            tft.print("Press any button to continue");
+
+            // Wait for button release
+            while (controller2.y == 0) {
+                delay(1500);
+            }
+
+            // Wait for a new button press
+            bool buttonPressed = false;
+            while (!buttonPressed) {
+                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0) {
+                    buttonPressed = true;
+                }
+                delay(50);
+            }
+
+            notSelected = 1;
 
             notSelected = 1;
             break;
@@ -125,21 +165,23 @@ void loop() {
 
             runReactionGame();
 
-            // Display high score and wait for button press
+            // Display message and wait for button press
             tft.fillScreen(TFT_BLACK);
-            tft.setCursor(10, 10);
-            tft.print("High Score: ");
-            tft.print(highScore);
             tft.setCursor(10, 40);
             tft.print("Press any button to continue");
 
-            // Wait for button press
+            // Wait for button release
+            while (controller2.b == 0) {
+                delay(1500);
+            }
+
+            // Wait for a new button press
             bool buttonPressed = false;
             while (!buttonPressed) {
-                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0) {
+                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0) {
                     buttonPressed = true;
                 }
-                delay(50); // Small delay to prevent excessive polling
+                delay(50);
             }
 
             notSelected = 1;
