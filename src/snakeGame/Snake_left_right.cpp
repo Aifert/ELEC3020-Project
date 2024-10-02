@@ -34,6 +34,10 @@ TFT_eSprite sprite(&tft);
 // Add these variables at the top of the file, after other global variables
 bool lastBigButtonState = true;
 bool currentBigButtonState = true;
+bool lastYButtonState = true;
+bool currentYButtonState = true;
+bool lastBButtonState = true;
+bool currentBButtonState = true;
 
 void getFood()//.....................getFood -get new position of food
 {
@@ -108,27 +112,34 @@ void runSnakeGame() {
         currentTime = millis();
     }
 
-    // Update button state
+    // Update button states
     lastBigButtonState = currentBigButtonState;
     currentBigButtonState = controller2.big;
+    lastYButtonState = currentYButtonState;
+    currentYButtonState = controller2.y;
+    lastBButtonState = currentBButtonState;
+    currentBButtonState = controller2.b;
 
-    // Check for button press (transition from HIGH to LOW)
-    if (currentBigButtonState == 0 && lastBigButtonState == 1) {
+
+    if (currentYButtonState == 0 && lastYButtonState == 1) {
         if (ready == 1) {
-            // Handle direction change
-            if (dirX == 1) {
-                dirY = -1;
-                dirX = 0;
-            } else if (dirX == -1) {
-                dirY = 1;
-                dirX = 0;
-            } else if (dirY == 1) {
-                dirX = 1;
-                dirY = 0;
-            } else if (dirY == -1) {
-                dirX = -1;
-                dirY = 0;
-            }
+            // Handle left turn
+            int temp = dirX;
+            dirX = dirY;
+            dirY = -temp;
+
+            // Prevent immediate consecutive changes
+            ready = 0;
+            readyTime = millis();
+        }
+    }
+
+    if (currentBButtonState == 0 && lastBButtonState == 1) {
+        if (ready == 1) {
+            // Handle right turn
+            int temp = dirX;
+            dirX = -dirY;
+            dirY = temp;
 
             // Prevent immediate consecutive changes
             ready = 0;
@@ -207,3 +218,4 @@ void setupSnakeGame() {  //.......................setup
         }
     }
 }
+

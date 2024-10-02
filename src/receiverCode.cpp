@@ -23,6 +23,20 @@
 
 // struct_message controller2;
 
+// // Function to print MAC address on the TFT screen
+// void printMacAddress() {
+//     uint8_t mac[6];
+//     WiFi.macAddress(mac);
+//     char macStr[18];
+//     snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
+//              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+//     tft.fillScreen(TFT_BLACK);
+//     tft.setCursor(0, 0);
+//     tft.println("MAC Address:");
+//     tft.println(macStr);
+// }
+
 // // callback function that will be executed when data is received
 // void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
 //   char macStr[18];
@@ -99,6 +113,9 @@
 //   // Once ESPNow is successfully Init, we will register for recv CB to
 //   // get recv packer info
 //   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+
+//   // Print MAC address on the TFT screen
+//   printMacAddress();
 // }
 
 // void loop() {
