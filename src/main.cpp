@@ -94,8 +94,10 @@ void setup() {
     Serial.begin(115200);
     // pinMode(buttonA, INPUT_PULLUP);
     // pinMode(buttonB, INPUT_PULLUP);
-    pinMode(powerEnable, INPUT_PULLUP);
     pinMode(switchPin, INPUT_PULLUP);
+    pinMode(powerEnable, OUTPUT);
+
+    digitalWrite(powerEnable, HIGH);
 
     WiFi.mode(WIFI_STA);
     if (esp_now_init() != ESP_OK) {

@@ -161,6 +161,8 @@ void setupPongGame() {
     resetGame();
 
     break;
+
+    delay(5000);
   }
   delay(20); // Control game speed
 
