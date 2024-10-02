@@ -1,208 +1,208 @@
-#include "ESP32S3VGA.h"
-#include <GfxWrapper.h>
-#include <esp_now.h>
-#include <WiFi.h> // For ESP-NOW functionality
+// #include "ESP32S3VGA.h"
+// #include <GfxWrapper.h>
+// #include <esp_now.h>
+// #include <WiFi.h> // For ESP-NOW functionality
 
-// VGA pin configuration
-const PinConfig pins(-1, -1, -1, -1, 43, -1, -1, -1, -1, -1, 44, -1, -1, -1, -1, 18, 1, 2);
-VGA vga;
-Mode mode = Mode::MODE_320x240x60;  // Set VGA mode to 320x240
-GfxWrapper<VGA> gfx(vga, mode.hRes, mode.vRes);
+// // VGA pin configuration
+// const PinConfig pins(-1, -1, -1, -1, 43, -1, -1, -1, -1, -1, 44, -1, -1, -1, -1, 18, 1, 2);
+// VGA vga;
+// Mode mode = Mode::MODE_320x240x60;  // Set VGA mode to 320x240
+// GfxWrapper<VGA> gfx(vga, mode.hRes, mode.vRes);
 
-// Game display settings
-const int screenWidth = 320;
-const int screenHeight = 240;
+// // Game display settings
+// const int screenWidth = 320;
+// const int screenHeight = 240;
 
-// Paddle settings
-const int paddleWidth = 10;
-const int paddleHeight = 40;
-int paddle1X = 10;
-int paddle1Y = (screenHeight - paddleHeight) / 2;
-int paddle2X = screenWidth - 20;
-int paddle2Y = (screenHeight - paddleHeight) / 2;
+// // Paddle settings
+// const int paddleWidth = 10;
+// const int paddleHeight = 40;
+// int paddle1X = 10;
+// int paddle1Y = (screenHeight - paddleHeight) / 2;
+// int paddle2X = screenWidth - 20;
+// int paddle2Y = (screenHeight - paddleHeight) / 2;
 
-// Ball settings
-int ballX = screenWidth / 2;
-int ballY = screenHeight / 2;
-const int ballSize = 10;
-int ballSpeedX = 2;
-int ballSpeedY = 2;
+// // Ball settings
+// int ballX = screenWidth / 2;
+// int ballY = screenHeight / 2;
+// const int ballSize = 10;
+// int ballSpeedX = 2;
+// int ballSpeedY = 2;
 
-// Game state
-bool gameEnded = false;
-int score1 = 0;
-int score2 = 0;
+// // Game state
+// bool gameEnded = false;
+// int score1 = 0;
+// int score2 = 0;
 
-// Struct to store incoming ESP-NOW data from controllers
-struct struct_message {
-    int id;
-    int a; // Button A
-    int b; // Button B
-};
+// // Struct to store incoming ESP-NOW data from controllers
+// struct struct_message {
+//     int id;
+//     int a; // Button A
+//     int b; // Button B
+// };
 
-struct_message controller1;
-struct_message controller2;
+// struct_message controller1;
+// struct_message controller2;
 
-// Function declarations
-void resetGame();
-void updatePaddles();
-void updateBall();
-void checkCollision();
-void drawGame();
-void drawWinScreen();
-void checkWinCondition();
-void resetBall();
-void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len);
+// // Function declarations
+// void resetGame();
+// void updatePaddles();
+// void updateBall();
+// void checkCollision();
+// void drawGame();
+// void drawWinScreen();
+// void checkWinCondition();
+// void resetBall();
+// void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len);
 
-void setup() {
-    vga.bufferCount = 2;
-    if (!vga.init(pins, mode, 16)) {
-        while (1) delay(1); // Halt if VGA initialization fails
-    }
-    vga.start();
-    
-    // Initialize ESP-NOW
-    WiFi.mode(WIFI_STA);
-    if (esp_now_init() != ESP_OK) {
-        return; // Handle error if ESP-NOW fails to initialize
-    }
-    esp_now_register_recv_cb(OnDataRecv); // Register callback for data reception
+// void setup() {
+//     vga.bufferCount = 2;
+//     if (!vga.init(pins, mode, 16)) {
+//         while (1) delay(1); // Halt if VGA initialization fails
+//     }
+//     vga.start();
 
-    resetGame(); // Initialize game state
-}
+//     // Initialize ESP-NOW
+//     WiFi.mode(WIFI_STA);
+//     if (esp_now_init() != ESP_OK) {
+//         return; // Handle error if ESP-NOW fails to initialize
+//     }
+//     esp_now_register_recv_cb(OnDataRecv); // Register callback for data reception
 
-void loop() {
-    if (!gameEnded) {
-        updatePaddles();  // Update paddles based on controller input
-        updateBall();     // Move the ball
-        checkCollision(); // Check for ball and paddle collisions
-        drawGame();       // Draw the game state on the screen
-    } else {
-        drawWinScreen();  // Display the win screen
-    }
-    delay(20);  // Control game speed
-}
+//     resetGame(); // Initialize game state
+// }
 
-// ESP-NOW data reception callback
-void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
-    struct_message incomingMessage;
-    memcpy(&incomingMessage, incomingData, sizeof(incomingMessage));
+// void loop() {
+//     if (!gameEnded) {
+//         updatePaddles();  // Update paddles based on controller input
+//         updateBall();     // Move the ball
+//         checkCollision(); // Check for ball and paddle collisions
+//         drawGame();       // Draw the game state on the screen
+//     } else {
+//         drawWinScreen();  // Display the win screen
+//     }
+//     delay(20);  // Control game speed
+// }
 
-    // Update controller data based on incoming message ID
-    if (incomingMessage.id == 1) {
-        controller1 = incomingMessage; // Update Player 1 controller data
-    } else if (incomingMessage.id == 2) {
-        controller2 = incomingMessage; // Update Player 2 controller data
-    }
-}
+// // ESP-NOW data reception callback
+// void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
+//     struct_message incomingMessage;
+//     memcpy(&incomingMessage, incomingData, sizeof(incomingMessage));
 
-// Update paddle positions based on controller inputs
-void updatePaddles() {
-    // Player 1 controls (controller1)
-    if (controller1.a == 0) {  // Button A moves paddle 1 up
-        paddle1Y -= 5;
-    } else if (controller1.b == 0) {  // Button B moves paddle 1 down
-        paddle1Y += 5;
-    }
+//     // Update controller data based on incoming message ID
+//     if (incomingMessage.id == 1) {
+//         controller1 = incomingMessage; // Update Player 1 controller data
+//     } else if (incomingMessage.id == 2) {
+//         controller2 = incomingMessage; // Update Player 2 controller data
+//     }
+// }
 
-    // Player 2 controls (controller2)
-    if (controller2.a == 0) {  // Button A moves paddle 2 up
-        paddle2Y -= 5;
-    } else if (controller2.b == 0) {  // Button B moves paddle 2 down
-        paddle2Y += 5;
-    }
+// // Update paddle positions based on controller inputs
+// void updatePaddles() {
+//     // Player 1 controls (controller1)
+//     if (controller1.a == 0) {  // Button A moves paddle 1 up
+//         paddle1Y -= 5;
+//     } else if (controller1.b == 0) {  // Button B moves paddle 1 down
+//         paddle1Y += 5;
+//     }
 
-    // Keep paddles within screen bounds
-    paddle1Y = constrain(paddle1Y, 0, screenHeight - paddleHeight);
-    paddle2Y = constrain(paddle2Y, 0, screenHeight - paddleHeight);
-}
+//     // Player 2 controls (controller2)
+//     if (controller2.a == 0) {  // Button A moves paddle 2 up
+//         paddle2Y -= 5;
+//     } else if (controller2.b == 0) {  // Button B moves paddle 2 down
+//         paddle2Y += 5;
+//     }
 
-void updateBall() {
-    ballX += ballSpeedX;
-    ballY += ballSpeedY;
+//     // Keep paddles within screen bounds
+//     paddle1Y = constrain(paddle1Y, 0, screenHeight - paddleHeight);
+//     paddle2Y = constrain(paddle2Y, 0, screenHeight - paddleHeight);
+// }
 
-    // Ball bounces off top and bottom
-    if (ballY <= 0 || ballY >= screenHeight - ballSize) {
-        ballSpeedY = -ballSpeedY;
-    }
+// void updateBall() {
+//     ballX += ballSpeedX;
+//     ballY += ballSpeedY;
 
-    // Ball goes out of bounds (left or right)
-    if (ballX <= 0) {
-        score2++;
-        checkWinCondition();
-        resetBall();
-    }
-    if (ballX >= screenWidth - ballSize) {
-        score1++;
-        checkWinCondition();
-        resetBall();
-    }
-}
+//     // Ball bounces off top and bottom
+//     if (ballY <= 0 || ballY >= screenHeight - ballSize) {
+//         ballSpeedY = -ballSpeedY;
+//     }
 
-void checkCollision() {
-    // Ball hits paddle 1
-    if (ballX <= paddle1X + paddleWidth && ballY >= paddle1Y && ballY <= paddle1Y + paddleHeight) {
-        ballSpeedX = -ballSpeedX;
-    }
+//     // Ball goes out of bounds (left or right)
+//     if (ballX <= 0) {
+//         score2++;
+//         checkWinCondition();
+//         resetBall();
+//     }
+//     if (ballX >= screenWidth - ballSize) {
+//         score1++;
+//         checkWinCondition();
+//         resetBall();
+//     }
+// }
 
-    // Ball hits paddle 2
-    if (ballX + ballSize >= paddle2X && ballY >= paddle2Y && ballY <= paddle2Y + paddleHeight) {
-        ballSpeedX = -ballSpeedX;
-    }
-}
+// void checkCollision() {
+//     // Ball hits paddle 1
+//     if (ballX <= paddle1X + paddleWidth && ballY >= paddle1Y && ballY <= paddle1Y + paddleHeight) {
+//         ballSpeedX = -ballSpeedX;
+//     }
 
-void drawGame() {
-    vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
+//     // Ball hits paddle 2
+//     if (ballX + ballSize >= paddle2X && ballY >= paddle2Y && ballY <= paddle2Y + paddleHeight) {
+//         ballSpeedX = -ballSpeedX;
+//     }
+// }
 
-    // Draw paddles
-    gfx.fillRect(paddle1X, paddle1Y, paddleWidth, paddleHeight, vga.rgb(255, 255, 255));  // White paddle 1
-    gfx.fillRect(paddle2X, paddle2Y, paddleWidth, paddleHeight, vga.rgb(255, 255, 255));  // White paddle 2
+// void drawGame() {
+//     vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
 
-    // Draw ball
-    gfx.fillRect(ballX, ballY, ballSize, ballSize, vga.rgb(255, 255, 255));  // White ball
+//     // Draw paddles
+//     gfx.fillRect(paddle1X, paddle1Y, paddleWidth, paddleHeight, vga.rgb(255, 255, 255));  // White paddle 1
+//     gfx.fillRect(paddle2X, paddle2Y, paddleWidth, paddleHeight, vga.rgb(255, 255, 255));  // White paddle 2
 
-    // Draw scores
-    gfx.setCursor(30, 20);
-    gfx.setTextColor(vga.rgb(255, 255, 255));
-    gfx.print("P1: " + String(score1));  // Display player 1 score
+//     // Draw ball
+//     gfx.fillRect(ballX, ballY, ballSize, ballSize, vga.rgb(255, 255, 255));  // White ball
 
-    gfx.setCursor(screenWidth - 100, 20);
-    gfx.setTextColor(vga.rgb(255, 255, 255));
-    gfx.print("P2: " + String(score2));  // Display player 2 score
+//     // Draw scores
+//     gfx.setCursor(30, 20);
+//     gfx.setTextColor(vga.rgb(255, 255, 255));
+//     gfx.print("P1: " + String(score1));  // Display player 1 score
 
-    vga.show();  // Display everything on screen
-}
+//     gfx.setCursor(screenWidth - 100, 20);
+//     gfx.setTextColor(vga.rgb(255, 255, 255));
+//     gfx.print("P2: " + String(score2));  // Display player 2 score
 
-void drawWinScreen() {
-    vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen
+//     vga.show();  // Display everything on screen
+// }
 
-    gfx.setCursor(80, screenHeight / 2 - 10);
-    gfx.setTextColor(vga.rgb(255, 255, 255));
-    gfx.print("Game Over!");
+// void drawWinScreen() {
+//     vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen
 
-    gfx.setCursor(50, screenHeight / 2 + 20);
-    gfx.setTextColor(vga.rgb(255, 255, 255));
-    gfx.print("Press Button to Restart");
+//     gfx.setCursor(80, screenHeight / 2 - 10);
+//     gfx.setTextColor(vga.rgb(255, 255, 255));
+//     gfx.print("Game Over!");
 
-    vga.show();
-}
+//     gfx.setCursor(50, screenHeight / 2 + 20);
+//     gfx.setTextColor(vga.rgb(255, 255, 255));
+//     gfx.print("Press Button to Restart");
 
-void checkWinCondition() {
-    if (score1 >= 5 || score2 >= 5) {
-        gameEnded = true;
-    }
-}
+//     vga.show();
+// }
 
-void resetGame() {
-    score1 = 0;
-    score2 = 0;
-    gameEnded = false;
-    resetBall();
-}
+// void checkWinCondition() {
+//     if (score1 >= 5 || score2 >= 5) {
+//         gameEnded = true;
+//     }
+// }
 
-void resetBall() {
-    ballX = screenWidth / 2;
-    ballY = screenHeight / 2;
-    ballSpeedX = (ballSpeedX > 0) ? 2 : -2;
-    ballSpeedY = (ballSpeedY > 0) ? 2 : -2;
-}
+// void resetGame() {
+//     score1 = 0;
+//     score2 = 0;
+//     gameEnded = false;
+//     resetBall();
+// }
+
+// void resetBall() {
+//     ballX = screenWidth / 2;
+//     ballY = screenHeight / 2;
+//     ballSpeedX = (ballSpeedX > 0) ? 2 : -2;
+//     ballSpeedY = (ballSpeedY > 0) ? 2 : -2;
+// }

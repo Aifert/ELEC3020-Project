@@ -5,6 +5,7 @@
 #include "main.h"
 #include "newGame.h"
 #include "Snake.h"
+#include "audioFile.h"
 
 int size=1;
 int y[120]={0};
@@ -37,7 +38,7 @@ bool currentBigButtonState = true;
 bool lastYButtonState = true;
 bool currentYButtonState = true;
 bool lastBButtonState = true;
-bool currentBButtonState = true;
+bool currentAButtonState = true;
 
 void getFood()//.....................getFood -get new position of food
 {
@@ -117,12 +118,13 @@ void runSnakeGame() {
     currentBigButtonState = controller2.big;
     lastYButtonState = currentYButtonState;
     currentYButtonState = controller2.y;
-    lastBButtonState = currentBButtonState;
-    currentBButtonState = controller2.b;
+    lastBButtonState = currentAButtonState;
+    currentAButtonState = controller2.a;
 
 
     if (currentYButtonState == 0 && lastYButtonState == 1) {
         if (ready == 1) {
+            playSnakeLeft();
             // Handle left turn
             int temp = dirX;
             dirX = dirY;
@@ -134,8 +136,9 @@ void runSnakeGame() {
         }
     }
 
-    if (currentBButtonState == 0 && lastBButtonState == 1) {
+    if (currentAButtonState == 0 && lastBButtonState == 1) {
         if (ready == 1) {
+            playSnakeRight();
             // Handle right turn
             int temp = dirX;
             dirX = -dirY;
@@ -175,7 +178,7 @@ void setupSnakeGame() {  //.......................setup
     sprite.setSwapBytes(true);
     while(controller2.big == 1)
     {
-        if(controller2.b == 0)
+        if(controller2.a == 0)
         {
             if(deb2 == 0)
             {
@@ -205,6 +208,7 @@ void setupSnakeGame() {  //.......................setup
         runSnakeGame();
 
         if (gOver == 1) {
+            gameOverSound();
             // Reset game variables
             size = 1;
             x[0] = 0;

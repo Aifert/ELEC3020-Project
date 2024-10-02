@@ -4,6 +4,7 @@
 #include <EEPROM.h>
 #include "main.h"
 #include "reactionGame.h"
+#include "audioFile.h"
 
 const int SwitchPin = 1;     // Button pin
 const int EEPROM_ADDR = 0;   // EEPROM address to store high score
@@ -67,9 +68,12 @@ void processButtonClick(int& highScore) {
             tft.setCursor(20, 100);
             if (controller1Pressed) {
                 tft.println("Controller 1 won!");
+                playCantina();
             } else if (controller2Pressed) {
                 tft.println("Controller 2 won!");
+                playCantina();
             }
+            delay(3000);
 
             if (reactionTime < highScore || highScore == 0) {
                 highScore = reactionTime;
