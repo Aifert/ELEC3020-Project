@@ -130,15 +130,25 @@ int melody[] = {
 //   NOTE_B4, 2, NOTE_D5,2,
 
 //   NOTE_F5, -4, NOTE_E5,-4, NOTE_AS4,8, NOTE_AS4,8, NOTE_B4,4, NOTE_G4,4,
-
-
-
-
 };
 
+int melody2[] = {
+    NOTE_B4, -4,
+};
+
+int melody3[] = {
+    NOTE_E4, -4,
+};
+
+int melody4[] = {
+    NOTE_CS4, 4, NOTE_C4, 4, NOTE_B3, 4, NOTE_AS3, 1,
+};
 // sizeof gives the number of bytes, each int value is composed of two bytes (16 bits)
 // there are two values per note (pitch and duration), so for each note there are four bytes
 int notes = sizeof(melody) / sizeof(melody[0]) / 2;
+int notes2 = sizeof(melody2) / sizeof(melody2[0]) / 2;
+int notes3 = sizeof(melody3) / sizeof(melody3[0]) / 2;
+int notes4 = sizeof(melody4) / sizeof(melody4[0]) / 2;
 
 // this calculates the duration of a whole note in ms
 int wholenote = (60000 * 2) / tempo;
@@ -163,6 +173,87 @@ void playCantina() {
 
     // we only play the note for 90% of the duration, leaving 10% as a pause
     tone(buzzer, melody[thisNote], noteDuration*0.9);
+
+    // Wait for the specief duration before playing the next note.
+    delay(noteDuration);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzer);
+  }
+}
+
+void playSnakeLeft(){
+    // iterate over the notes of the melody.
+  // Remember, the array is twice the number of notes (notes + durations)
+  for (int thisNote = 0; thisNote < notes2 * 2; thisNote = thisNote + 2) {
+
+    // calculates the duration of each note
+    divider = melody2[thisNote + 1];
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // increases the duration in half for dotted notes
+    }
+
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    tone(buzzer, melody2[thisNote], noteDuration*0.4);
+
+    // Wait for the specief duration before playing the next note.
+    delay(noteDuration);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzer);
+  }
+}
+
+void playSnakeRight(){
+    // iterate over the notes of the melody.
+  // Remember, the array is twice the number of notes (notes + durations)
+  for (int thisNote = 0; thisNote < notes3 * 2; thisNote = thisNote + 2) {
+
+    // calculates the duration of each note
+    divider = melody3[thisNote + 1];
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // increases the duration in half for dotted notes
+    }
+
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    tone(buzzer, melody3[thisNote], noteDuration*0.4);
+
+    // Wait for the specief duration before playing the next note.
+    delay(noteDuration);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzer);
+  }
+}
+
+void gameOverSound(){
+     // iterate over the notes of the melody.
+  // Remember, the array is twice the number of notes (notes + durations)
+  for (int thisNote = 0; thisNote < notes4 * 2; thisNote = thisNote + 2) {
+
+    // calculates the duration of each note
+    divider = melody4[thisNote + 1];
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // increases the duration in half for dotted notes
+    }
+
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    tone(buzzer, melody4[thisNote], noteDuration*0.9);
 
     // Wait for the specief duration before playing the next note.
     delay(noteDuration);

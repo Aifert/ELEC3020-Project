@@ -19,8 +19,8 @@ struct_message controller2 = {2, 1, 1, 1, 1, 1};
 // Define Buttons and Switch Pins
 // const int buttonA = 0;
 // const int buttonB = 14;
-const int buttonC = 15;
 const int switchPin = 1;
+const int powerEnable = 15;
 int notSelected = 0;
 int highScore = 0;
 
@@ -86,7 +86,7 @@ void setup() {
     Serial.begin(115200);
     // pinMode(buttonA, INPUT_PULLUP);
     // pinMode(buttonB, INPUT_PULLUP);
-    pinMode(buttonC, INPUT_PULLUP);
+    pinMode(powerEnable, INPUT_PULLUP);
     pinMode(switchPin, INPUT_PULLUP);
 
     WiFi.mode(WIFI_STA);
@@ -122,12 +122,12 @@ void setup() {
 }
 
 void loop() {
-    if (controller2.y == 1) {
+    if (controller2.y == 1 || controller1.y) {
         displayGameOptions();
     }
 
     while (!notSelected) {
-        if (controller2.y == 0) {
+        if (controller2.y == 0 || controller1.y == 0) {
             tft.fillScreen(TFT_BLACK);
             tft.setCursor(10, 10);
             tft.print("Snake Game Selected");
@@ -140,18 +140,18 @@ void loop() {
             tft.setTextSize(2);
             tft.setRotation(1);
             tft.setCursor(10, 40);
-            tft.print("Press any button");
+            tft.print("Press any button\n");
             tft.print("to continue");
 
             // Wait for button release
-            while (controller2.y == 0) {
+            while (controller2.y == 0 || controller1.y == 0) {
                 delay(1500);
             }
 
             // Wait for a new button press
             bool buttonPressed = false;
             while (!buttonPressed) {
-                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0) {
+                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0 || controller1.a == 0 || controller1.b == 0 || controller1.x == 0 || controller1.y == 0 || controller1.big == 0) {
                     buttonPressed = true;
                 }
                 delay(50);
@@ -161,7 +161,7 @@ void loop() {
 
             notSelected = 1;
             break;
-        } else if (controller2.b == 0) {
+        } else if (controller2.b == 0 || controller1.b == 0) {
             tft.fillScreen(TFT_BLACK);
             tft.setCursor(10, 10);
             tft.print("Reaction Game Selected");
@@ -172,17 +172,18 @@ void loop() {
             // Display message and wait for button press
             tft.fillScreen(TFT_BLACK);
             tft.setCursor(10, 40);
-            tft.print("Press any button to continue");
+            tft.print("Press any button\n");
+            tft.print("to continue");
 
             // Wait for button release
-            while (controller2.b == 0) {
+            while (controller2.b == 0 || controller1.b == 0) {
                 delay(1500);
             }
 
             // Wait for a new button press
             bool buttonPressed = false;
             while (!buttonPressed) {
-                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0) {
+                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0 || controller1.a == 0 || controller1.b == 0 || controller1.x == 0 || controller1.y == 0 || controller1.big == 0) {
                     playCantina();
                     buttonPressed = true;
                 }

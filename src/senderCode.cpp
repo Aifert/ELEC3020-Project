@@ -8,10 +8,11 @@
 // #define buttonB 3
 // #define buttonX 10
 // #define buttonY 11
+// #define powerEnable 15
 
 // // REPLACE WITH THE RECEIVER'S MAC Address
 // // uint8_t broadcastAddress[] = {0x30, 0x30, 0xf9, 0x59, 0xe2, 0x90};
-// uint8_t broadcastAddress[] = {0x84, 0xFC, 0xE6, 0x64, 0xA7, 0xA4};
+// uint8_t broadcastAddress[] = {0x30, 0x30, 0xf9, 0x59, 0xe2, 0x90};
 // // My Mac Address is 0x30, 0x30, 0xf9, 0x59, 0xe2, 0x90
 
 // // Structure example to send data
@@ -26,7 +27,7 @@
 // } struct_message;
 
 // // Create a struct_message called myData
-// struct_message myData = {2, 1, 1, 1, 1, 1};
+// struct_message myData = {1, 1, 1, 1, 1, 1};
 
 // // Create peer interface
 // esp_now_peer_info_t peerInfo;
@@ -42,12 +43,15 @@
 // }
 
 // void setup() {
+
+//   pinMode(powerEnable, OUTPUT);
 //   pinMode(buttonBig, INPUT);
 //   pinMode(buttonA, INPUT);
 //   pinMode(buttonB, INPUT);
 //   pinMode(buttonX, INPUT);
 //   pinMode(buttonY, INPUT);
 
+//   digitalWrite(powerEnable, HIGH);
 //   // Init Serial Monitor
 //   Serial.begin(115200);
 
