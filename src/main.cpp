@@ -7,6 +7,7 @@
 #include "reactionGame.h"
 #include "main.h"
 #include "audioFile.h"
+#include "PongGame.h"
 
 
 #define EEPROM_SIZE 4096
@@ -48,24 +49,31 @@ void printMacAddress() {
 
 void displayGameOptions() {
     tft.fillScreen(TFT_BLACK);
-    String option1 = "Press A for Snake Game";
+    String option1 = "Press A for Pong Game";
     String option2 = "Press B for Reaction Game";
+    String option3 = "Press Y for Snake Game";
 
     int screenWidth = tft.width();
     int option1Width = tft.textWidth(option1);
     int option2Width = tft.textWidth(option2);
+    int option3Width = tft.textWidth(option3);
 
     int option1X = (screenWidth - option1Width) / 2;
     int option2X = (screenWidth - option2Width) / 2;
+    int option3X = (screenWidth - option3Width) / 2;
 
     int option1Y = 50;
     int option2Y = option1Y + 30;
+    int option3Y = option2Y + 30;
 
     tft.setCursor(option1X, option1Y);
     tft.print(option1);
 
     tft.setCursor(option2X, option2Y);
     tft.print(option2);
+
+    tft.setCursor(option3X, option3Y);
+    tft.print(option3);
 
     notSelected = 0;
 }
@@ -139,8 +147,9 @@ void loop() {
             tft.setTextColor(TFT_WHITE, TFT_BLACK);
             tft.setTextSize(2);
             tft.setRotation(1);
-            tft.setCursor(10, 40);
-            tft.print("Press any button\n");
+            tft.setCursor(tft.width() / 2 - 90, tft.height() / 2 - 20);
+            tft.print("Press any button");
+            tft.setCursor(tft.width() / 2 - 75, tft.height() / 2 + 10);
             tft.print("to continue");
 
             // Wait for button release
@@ -171,12 +180,46 @@ void loop() {
 
             // Display message and wait for button press
             tft.fillScreen(TFT_BLACK);
-            tft.setCursor(10, 40);
-            tft.print("Press any button\n");
+            tft.setCursor(tft.width() / 2 - 90, tft.height() / 2 - 20);
+            tft.print("Press any button");
+            tft.setCursor(tft.width() / 2 - 75, tft.height() / 2 + 10);
             tft.print("to continue");
 
             // Wait for button release
             while (controller2.b == 0 || controller1.b == 0) {
+                delay(1500);
+            }
+
+            // Wait for a new button press
+            bool buttonPressed = false;
+            while (!buttonPressed) {
+                if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0 || controller1.a == 0 || controller1.b == 0 || controller1.x == 0 || controller1.y == 0 || controller1.big == 0) {
+                    playCantina();
+                    buttonPressed = true;
+                }
+                delay(50);
+            }
+
+            notSelected = 1;
+            break;
+        }
+        else if (controller2.a == 0 || controller1.a == 0) {
+            tft.fillScreen(TFT_BLACK);
+            tft.setCursor(10, 10);
+            tft.print("Pong game selected");
+
+            playCantina();
+            setupPongGame();
+
+            // Display message and wait for button press
+            tft.fillScreen(TFT_BLACK);
+            tft.setCursor(tft.width() / 2 - 90, tft.height() / 2 - 20);
+            tft.print("Press any button");
+            tft.setCursor(tft.width() / 2 - 75, tft.height() / 2 + 10);
+            tft.print("to continue");
+
+            // Wait for button release
+            while (controller2.a == 0 || controller1.a == 0) {
                 delay(1500);
             }
 
