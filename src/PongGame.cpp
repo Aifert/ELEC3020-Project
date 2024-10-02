@@ -1,6 +1,6 @@
 #include <TFT_eSPI.h>
 #include <Arduino.h>
-#include "main.h"  // Assuming this contains the controller2 struct definition
+#include "main.h"  // Assuming this contains the controller1 and controller2 struct definitions
 
 
 // Game display settings
@@ -38,6 +38,13 @@ void checkWinCondition();
 void resetBall();
 
 void updatePaddles() {
+  // Player 1 controls (left paddle)
+  if (controller1.x == 0) {
+    paddle1Y -= 5; // Move Paddle 1 up
+  } else if (controller1.b == 0) {
+    paddle1Y += 5; // Move Paddle 1 down
+  }
+
   // Player 2 controls (right paddle)
   if (controller2.x == 0) {
     paddle2Y -= 5; // Move Paddle 2 up
@@ -46,17 +53,10 @@ void updatePaddles() {
   }
 
   // Keep paddles within screen bounds
-  if (paddle2Y < 0) paddle2Y = 0;
-  if (paddle2Y + paddleHeight > screenHeight) paddle2Y = screenHeight - paddleHeight;
-
-  // Simple AI for Player 1 (left paddle)
-  if (ballY < paddle1Y + paddleHeight / 2) {
-    paddle1Y -= 3;
-  } else if (ballY > paddle1Y + paddleHeight / 2) {
-    paddle1Y += 3;
-  }
   if (paddle1Y < 0) paddle1Y = 0;
   if (paddle1Y + paddleHeight > screenHeight) paddle1Y = screenHeight - paddleHeight;
+  if (paddle2Y < 0) paddle2Y = 0;
+  if (paddle2Y + paddleHeight > screenHeight) paddle2Y = screenHeight - paddleHeight;
 }
 
 void updateBall() {
