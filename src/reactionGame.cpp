@@ -147,7 +147,7 @@ void processButtonClick(int& highScore) {
             tft.print(highScore);
             tft.println(" ms");
 
-            delay(1000);  // Allow time for display to stabilize
+            delay(3000);  // Allow time for display to stabilize
 
             gameEnded = true;
         }
@@ -165,9 +165,6 @@ void runReactionGame() {
         Serial.println("Error initializing ESP-NOW");
         return;
     }
-
-    // Register callback function if necessary
-    // esp_now_register_recv_cb(OnDataRecv);
 
     int highScore = 0;
     EEPROM.get(EEPROM_ADDR, highScore);  // Load the high score from EEPROM

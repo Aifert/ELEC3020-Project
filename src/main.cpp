@@ -54,21 +54,27 @@ void printMacAddress() {
 void displayGameOptions() {
     gfx->setTextSize(1);
     vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
+    String team = "Team 6";
     String option1 = "Press A for Pong Game";
     String option2 = "Press B for Reaction Game";
     String option3 = "Press Y for Snake Game";
 
     int screenWidth = mode.hRes;
-    int option1Y = 50;
+    int teamY = 20;
+    int option1Y = teamY + 30;
     int option2Y = option1Y + 30;
     int option3Y = option2Y + 30;
 
     gfx->setTextColor(vga.rgb(255, 255, 255));
 
     // Calculate text width manually
+    int teamWidth = team.length() * 16; // Assuming 8 pixels per character
     int option1Width = option1.length() * 8; // Assuming 8 pixels per character
     int option2Width = option2.length() * 8;
     int option3Width = option3.length() * 8;
+
+    gfx->setCursor((screenWidth - teamWidth) / 2, teamY);
+    gfx->print(team);
 
     gfx->setCursor((screenWidth - option1Width) / 2, option1Y);
     gfx->print(option1);
