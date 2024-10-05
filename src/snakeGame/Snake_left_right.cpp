@@ -1,4 +1,5 @@
-#include <TFT_eSPI.h>
+#include <VGA.h>
+#include "GfxWrapper.h"
 #include "../main.h"
 #include "back.h"
 #include "gameOver.h"
@@ -7,209 +8,252 @@
 #include "Snake.h"
 #include "audioFile.h"
 
-int size=1;
-int y[120]={0};
-int x[120]={0};
+int size = 1;
+int y[120] = {0};
+int x[120] = {0};
 
-unsigned long currentTime=0;
-int period=200;
-int deb,deb2=0;
-int dirX=1;
-int dirY=0;
-bool taken=0;
-unsigned short colors[2]={0x48ED,0x590F}; //terain colors
-unsigned short snakeColor[2]={0x9FD3,0x38C9};
-bool chosen=0;
-bool gOver=0;
-int moves=0;
-int playTime=0;
-int foodX=0;
-int foodY=0;
-int howHard=0;
-String diff[3]={"EASY","NORMAL","HARD"};
-bool ready=1;
-long readyTime=0;
+unsigned long currentTime = 0;
+int period = 200;
+int deb, deb2 = 0;
+int dirX = 1;
+int dirY = 0;
+bool taken = 0;
+unsigned short colors[2] = {0x48ED, 0x590F};  // terrain colors
+unsigned short snakeColor[2] = {0x9FD3, 0x38C9};
+bool chosen = 0;
+bool gOver = 0;
+int moves = 0;
+int playTime = 0;
+int foodX = 0;
+int foodY = 0;
+int howHard = 0;
+String diff[3] = {"EASY", "NORMAL", "HARD"};
+bool ready = 1;
+long readyTime = 0;
+int previousHowHard = -1;
 
-TFT_eSprite sprite(&tft);
 
-// Add these variables at the top of the file, after other global variables
-bool lastBigButtonState = true;
-bool currentBigButtonState = true;
-bool lastYButtonState = true;
-bool currentYButtonState = true;
-bool lastBButtonState = true;
-bool currentAButtonState = true;
+// Button state variables
+bool lastBigButtonState1 = true;
+bool currentBigButtonState1 = true;
+bool lastYButtonState1 = true;
+bool currentYButtonState1 = true;
+bool lastBButtonState1 = true;
+bool currentAButtonState1 = true;
 
-void getFood()//.....................getFood -get new position of food
-{
-    foodX=random(0,17);
-    foodY=random(0,17);
-    taken=0;
-    for(int i=0;i<size;i++)
-    if(foodX==x[i] && foodY==y[i])
-    taken=1;
-    if(taken==1)
-    getFood();
+bool lastBigButtonState2 = true;
+bool currentBigButtonState2 = true;
+bool lastYButtonState2 = true;
+bool currentYButtonState2 = true;
+bool lastBButtonState2 = true;
+bool currentAButtonState2 = true;
+
+void getFood() {
+    foodX = random(0, 17);
+    foodY = random(0, 17);
+    taken = 0;
+    for (int i = 0; i < size; i++)
+        if (foodX == x[i] && foodY == y[i])
+            taken = 1;
+    if (taken == 1)
+        getFood();
 }
 
+int change = 0;
 
-int change=0;
-
-void checkGameOver()//..,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,check game over
-{
-if(x[0]<0 || x[0]>=17 || y[0]<0 || y[0]>=17 )
-gOver=true;
-for(int i=1;i<size;i++)
-if(x[i]==x[0] && y[i]==y[0])
-gOver=true;
+void checkGameOver() {
+    if (x[0] < 0 || x[0] >= 17 || y[0] < 0 || y[0] >= 17)
+        gOver = true;
+    for (int i = 1; i < size; i++)
+        if (x[i] == x[0] && y[i] == y[0])
+            gOver = true;
 }
 
-
-
-void run()//...............................run function
-{
-
-      for(int i=size;i>0;i--)
-       {
-      x[i]=x[i-1];
-      y[i]=y[i-1];
-       }
-
-     x[0]=x[0]+dirX;
-     y[0]=y[0]+dirY;
-
-    if(x[0]==foodX && y[0]==foodY)
-             {size++; getFood(); tft.drawString(String(size),44,250); period=period-1; tft.drawString(String(500-period),124,250);}
-
-     sprite.fillSprite(TFT_BLACK);
-     /*
-    for(int i=0;i<17;i++)
-      for(int j=0;j<17;j++)
-        {
-        sprite.fillRect(j*10,i*10,10,10,colors[chosen]);
-        chosen=!chosen;
-        }
-     chosen=0;*/
-     checkGameOver();
-      if(gOver==0){
-     sprite.drawRect(0,0,170,170,0x02F3);
-     for(int i=0;i<size;i++){
-     sprite.fillRoundRect(x[i]*10,y[i]*10,10,10,2,snakeColor[0]);
-     sprite.fillRoundRect(2+x[i]*10,2+y[i]*10,6,6,2,snakeColor[1]);
-     }
-     sprite.fillRoundRect(foodX*10+1,foodY*10+1,8,8,1,TFT_RED);
-     sprite.fillRoundRect(foodX*10+3,foodY*10+3,4,4,1,0xFE18);
+void run() {
+    for (int i = size; i > 0; i--) {
+        x[i] = x[i - 1];
+        y[i] = y[i - 1];
     }
-else
 
-{sprite.pushImage(0,0,170,170,gameOver);}
- sprite.pushSprite(0,30);
+    x[0] = x[0] + dirX;
+    y[0] = y[0] + dirY;
+
+    if (x[0] == foodX && y[0] == foodY) {
+        size++;
+        getFood();
+        period = period - 1;
+    }
+
+    gfx->fillScreen(vga.rgb(0, 0, 0));  // Clear the screen
+
+    checkGameOver();
+    if (!gOver) {
+        gfx->drawRect(0, 0, 170, 170, vga.rgb(0, 255, 255));  // Draw the game border
+
+        // Draw the snake
+        for (int i = 0; i < size; i++) {
+            gfx->fillRect(x[i] * 10, y[i] * 10, 10, 10, vga.rgb(100, 255, 0));
+            gfx->fillRect(2 + x[i] * 10, 2 + y[i] * 10, 6, 6, vga.rgb(50, 150, 0));
+        }
+
+        // Draw the food
+        gfx->fillRect(foodX * 10 + 1, foodY * 10 + 1, 8, 8, vga.rgb(255, 0, 0));
+        gfx->fillRect(foodX * 10 + 3, foodY * 10 + 3, 4, 4, vga.rgb(255, 255, 0));
+    } else {
+        gfx->drawRGBBitmap(50, 50, gameOver, 170, 170);  // Draw game over image
+    }
+
+    vga.show();
 }
 
 void runSnakeGame() {
-    // Handle snake movement based on the period
-    if(millis() > currentTime + period) {
+    if (millis() > currentTime + period) {
         run();
         currentTime = millis();
     }
 
-    // Update button states
-    lastBigButtonState = currentBigButtonState;
-    currentBigButtonState = controller2.big;
-    lastYButtonState = currentYButtonState;
-    currentYButtonState = controller2.y;
-    lastBButtonState = currentAButtonState;
-    currentAButtonState = controller2.a;
+    // Button handling
+    lastBigButtonState2 = currentBigButtonState2;
+    currentBigButtonState2 = controller2.big;
+    lastYButtonState2 = currentYButtonState2;
+    currentYButtonState2 = controller2.y;
+    lastBButtonState2 = currentAButtonState2;
+    currentAButtonState2 = controller2.a;
 
+    lastBigButtonState1 = currentBigButtonState1;
+    currentBigButtonState1 = controller1.big;
+    lastYButtonState1 = currentYButtonState1;
+    currentYButtonState1 = controller1.y;
+    lastBButtonState1 = currentAButtonState1;
+    currentAButtonState1 = controller1.a;
 
-    if (currentYButtonState == 0 && lastYButtonState == 1) {
-        if (ready == 1) {
-            playSnakeLeft();
-            // Handle left turn
-            int temp = dirX;
-            dirX = dirY;
-            dirY = -temp;
-
-            // Prevent immediate consecutive changes
-            ready = 0;
-            readyTime = millis();
-        }
+    if ((currentYButtonState1 == 0 && lastYButtonState1 == 1 && ready == 1)
+        || (currentYButtonState2 == 0 && lastYButtonState2 == 1 && ready == 1)) {
+        playSnakeLeft();
+        int temp = dirX;
+        dirX = dirY;
+        dirY = -temp;
+        ready = 0;
+        readyTime = millis();
     }
 
-    if (currentAButtonState == 0 && lastBButtonState == 1) {
-        if (ready == 1) {
-            playSnakeRight();
-            // Handle right turn
-            int temp = dirX;
-            dirX = -dirY;
-            dirY = temp;
-
-            // Prevent immediate consecutive changes
-            ready = 0;
-            readyTime = millis();
-        }
+    if ((currentAButtonState1 == 0 && lastBButtonState1 == 1 && ready == 1)
+        || (currentAButtonState2 == 0 && lastBButtonState2 == 1 && ready == 1)) {
+        playSnakeRight();
+        int temp = dirX;
+        dirX = -dirY;
+        dirY = temp;
+        ready = 0;
+        readyTime = millis();
     }
 
-    // Reset readiness after a short delay to prevent rapid direction changes
     if (millis() > readyTime + 100 && ready == 0) {
         ready = 1;
     }
-
-    // Rest of your existing code...
 }
 
-void setupSnakeGame() {  //.......................setup
-    tft.init();
-    tft.fillScreen(TFT_BLACK);
-    tft.setRotation(0);
-    tft.setSwapBytes(true);
-    tft.pushImage(0,0,170,320,back);
-    tft.pushImage(0,30,170,170,newGame);
+// Add this helper function to draw the difficulty dot
+void drawDifficultyDot(int howHard) {
+    int yPos;
+
+    // Redraw the newGame image before drawing the dot
+    vga.clear(vga.rgb(0x00, 0x00, 0x00));
+    gfx->drawRGBBitmap(50, 50, newGame, 170, 170);
+    gfx->setCursor(10, 10);
+    gfx->setTextColor(vga.rgb(255, 255, 255));
+    gfx->print("Press Y to return the main menu");
+
+
+    // Determine y-coordinate based on difficulty
+    switch (howHard) {
+        case 0:  // Easy
+            yPos = 120;
+            break;
+        case 1:  // Normal
+            yPos = 140;
+            break;
+        case 2:  // Hard
+            yPos = 160;
+            break;
+    }
+
+    // Only clear the previous dot
+    if (previousHowHard != -1) {
+        int prevYPos;
+        switch (previousHowHard) {
+            case 0: prevYPos = 120; break;
+            case 1: prevYPos = 150; break;
+            case 2: prevYPos = 160; break;
+        }
+        gfx->fillCircle(78, prevYPos, 5, vga.rgb(0, 0, 0));  // Clear the previous dot
+
+        gfx->drawRGBBitmap(50, 50, newGame, 170, 170);  // Redraw the newGame screen
+    }
+
+    // Draw the current dot
+    gfx->fillCircle(78, yPos, 5, vga.rgb(255, 0, 0));  // Draw the red dot at the new position
+
+    // Store the current difficulty as the previous one
+    previousHowHard = howHard;
+}
+
+
+void setupSnakeGame() {
+    // Clear screen and draw the 'newGame' image
+    vga.clear(vga.rgb(0x00, 0x00, 0x00));
+
+    gfx->drawRGBBitmap(50, 50, newGame, 170, 170);  // Display the newGame screen
+    vga.show();
 
     size = 1;
     period = 200;
     howHard = 0;
     gOver = false;
 
-    tft.setTextColor(TFT_PURPLE,0x7DFD);
-    tft.fillSmoothCircle(28,102+(howHard*24),5,TFT_RED,TFT_BLACK);
+    drawDifficultyDot(howHard);
+    vga.show();
 
-    sprite.createSprite(170,170);
-    sprite.setSwapBytes(true);
-    while(controller2.big == 1)
-    {
-        if(controller2.a == 0)
-        {
-            if(deb2 == 0)
-            {
+    // Wait for user input to select difficulty
+    while (controller1.big == controller2.big) {
+        if(controller2.y == 0 || controller1.y == 0){
+            return;
+        }
+        if (controller2.b == 0 || controller1.b == 0) {
+            if (deb2 == 0) {
                 deb2 = 1;
-                tft.fillCircle(28, 102 + (howHard * 24), 6, TFT_BLACK);
-                howHard++;   if(howHard == 3) howHard = 0;
-                tft.fillSmoothCircle(28, 102 + (howHard * 24), 5, TFT_RED, TFT_BLACK);
+
+                // Change difficulty when 'B' is pressed
+                howHard++;
+                if (howHard == 3) howHard = 0;  // Wrap around to Easy after Hard
+
+                // Redraw the dot based on the new difficulty
+                drawDifficultyDot(howHard);
+                vga.show();
+
+                // Adjust the game period based on difficulty
                 period = 200 - howHard * 20;
+
                 delay(200);
             }
+        } else {
+            deb2 = 0;
         }
-        else deb2 = 0;
         delay(100);
     }
 
+
+
     y[0] = random(5, 15);
     getFood();
-    tft.setTextSize(3);
-    tft.setTextDatum(4);
-    tft.drawString(String(size), 44, 250);
-    tft.drawString(String(500 - period), 124, 250);
     delay(400);
     dirX = 1;
     dirY = 0;
 
-    while(true){
+    while (true) {
         runSnakeGame();
 
         if (gOver == 1) {
             gameOverSound();
-            // Reset game variables
             size = 1;
             x[0] = 0;
             y[0] = random(5, 15);
@@ -222,4 +266,3 @@ void setupSnakeGame() {  //.......................setup
         }
     }
 }
-
