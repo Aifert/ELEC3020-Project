@@ -126,14 +126,27 @@ void runReactionGame() {
     EEPROM.get(REACTION_HIGH_SCORE_ADDRESS, highScore);  // Load the high score from EEPROM
 
     // Initial instructions on VGA and TFT
-    vga.clear(vga.rgb(0, 0, 0));  // Black screen for VGA
-    gfx->setTextColor(vga.rgb(255, 255, 255));  // White text
-    gfx->setTextSize(2);
-    gfx->setCursor(10, 100);
-    gfx->println("Press to start");
+    vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
+
+
+    gfx->setCursor(10, 10);
+    gfx->setTextColor(vga.rgb(255, 255, 255));
+    gfx->print("< Press Y to return to the main menu");
+
+
+    gfx->setCursor(70, 100);
+    gfx->setTextColor(vga.rgb(255, 255, 255));
+    gfx->print("Press Big to start the game");
+
     vga.show();
 
     // Main game loop
+    while(controller1.big == controller2.big || controller2.big == controller1.big){
+        Serial.print(controller1.big);
+        if (controller1.y == 0 || controller2.y == 0){
+            return;
+        }
+    }
     while (!gameEnded) {
         processButtonClick(highScore);
         delay(10);  // Small delay to prevent excessive CPU usage
@@ -142,4 +155,6 @@ void runReactionGame() {
     // Reset game state
     gameStarted = false;
     gameEnded = false;
+
+    gfx->setTextSize(1);
 }

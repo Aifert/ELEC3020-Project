@@ -244,7 +244,7 @@ void setupSnakeGame() {
     vga.show();
 
     // Wait for user input to select difficulty
-    while (controller1.big == controller2.big) {
+    while(controller1.big == controller2.big || controller2.big == controller1.big){
         if (controller2.y == 0 || controller1.y == 0) {
             return;
         }
