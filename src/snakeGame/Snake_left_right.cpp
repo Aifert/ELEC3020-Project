@@ -186,6 +186,10 @@ void drawDifficultyDot(int howHard, snakeHighScores highScores) {
     gfx->setTextColor(vga.rgb(255, 255, 255));
     gfx->print("< Press Y to return to the main menu");
 
+
+    gfx->setCursor(175, 70);  // Adjusted to prevent overlap
+    gfx->print("Multiplayer: ");
+
     // Display high scores
     gfx->setCursor(175, 90);  // Adjusted to prevent overlap
     gfx->print("Top food: ");
@@ -206,6 +210,9 @@ void drawDifficultyDot(int howHard, snakeHighScores highScores) {
         case 2:  // Hard
             yPos = 170;
             break;
+        case 3:
+            yPos = 73;
+            break;
     }
 
     // Only clear the previous dot and draw the new one
@@ -215,12 +222,23 @@ void drawDifficultyDot(int howHard, snakeHighScores highScores) {
             case 0: prevYPos = 120; break;
             case 1: prevYPos = 150; break;
             case 2: prevYPos = 170; break;
+            case 3: prevYPos = 73; break;
         }
         gfx->fillCircle(28, prevYPos, 5, vga.rgb(0, 0, 0));  // Clear the previous dot
     }
 
     // Draw the current dot
-    gfx->fillCircle(28, yPos, 5, vga.rgb(255, 0, 0));  // Draw the red dot at the new position
+    if (howHard != 3) {
+        gfx->fillCircle(28, yPos, 5, vga.rgb(255, 0, 0));  // Draw the red dot at the new position
+    }
+
+    // Draw a circle next to "Multiplayer:" if multiplayer mode is selected
+    if (howHard == 3) {
+        gfx->fillCircle(260, yPos, 5, vga.rgb(255, 0, 0));  // Draw circle next to "Multiplayer:"
+    } else {
+        // Clear the circle if it's not in multiplayer mode
+        gfx->fillCircle(260, yPos, 5, vga.rgb(0, 0, 0));  // Clear the circle if not in multiplayer mode
+    }
 
     // Store the current difficulty as the previous one
     previousHowHard = howHard;
@@ -244,7 +262,7 @@ void setupSnakeGame() {
     vga.show();
 
     // Wait for user input to select difficulty
-    while (controller1.big == controller2.big) {
+    while(controller1.big == controller2.big || controller2.big == controller1.big){
         if (controller2.y == 0 || controller1.y == 0) {
             return;
         }
@@ -254,7 +272,7 @@ void setupSnakeGame() {
 
                 // Change difficulty when 'B' is pressed
                 howHard++;
-                if (howHard == 3) howHard = 0;  // Wrap around to Easy after Hard
+                if (howHard == 4) howHard = 0;  // Wrap around to Easy after Hard
 
                 // Redraw the dot based on the new difficulty
                 drawDifficultyDot(howHard, highScores);

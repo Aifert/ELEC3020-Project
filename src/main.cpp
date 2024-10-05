@@ -42,6 +42,13 @@ void printMacAddress() {
     // delay(5000);  // Display for 5 seconds
 }
 
+void waitForButtonRelease(){
+    while (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0 ||
+           controller1.a == 0 || controller1.b == 0 || controller1.x == 0 || controller1.y == 0 || controller1.big == 0) {
+        delay(1500);
+    }
+}
+
 void displayGameOptions() {
     gfx->setTextSize(1);
     vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
@@ -166,9 +173,7 @@ void loop() {
             vga.show();
 
             // Wait for button release
-            while (controller2.y == 0 || controller1.y == 0) {
-                delay(1500);
-            }
+            waitForButtonRelease();
 
             // Wait for a new button press
             bool buttonPressed = false;
@@ -200,9 +205,7 @@ void loop() {
             vga.show();
 
             // Wait for button release
-            while (controller2.b == 0 || controller1.b == 0) {
-                delay(1500);
-            }
+            waitForButtonRelease();
 
             // Wait for a new button press
             bool buttonPressed = false;
@@ -235,16 +238,13 @@ void loop() {
             vga.show();
 
             // Wait for button release
-            while (controller2.a == 0 || controller1.a == 0) {
-                delay(1500);
-            }
+            waitForButtonRelease();
 
             // Wait for a new button press
             bool buttonPressed = false;
             while (!buttonPressed) {
                 if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0 ||
                     controller1.a == 0 || controller1.b == 0 || controller1.x == 0 || controller1.y == 0 || controller1.big == 0) {
-                    playCantina();
                     buttonPressed = true;
                 }
                 delay(50);

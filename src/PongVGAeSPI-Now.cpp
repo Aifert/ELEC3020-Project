@@ -33,16 +33,6 @@ bool PonggameEnded = false;
 int score1 = 0;
 int score2 = 0;
 
-// Struct to store incoming ESP-NOW data from controllers
-// struct struct_message {
-//     int id;
-//     int a; // Button A
-//     int b; // Button B
-// };
-
-// struct_message controller1;
-// struct_message controller2;
-
 // Function declarations
 void resetGame();
 void updatePaddles();
@@ -183,10 +173,33 @@ void runPongGame() {
 
 void setupPongGame() {
 
+    vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
+
+    gfx->setCursor(10, 10);
+    gfx->setTextColor(vga.rgb(255, 255, 255));
+    gfx->print("< Press Y to return to the main menu");
+
+
+    gfx->setCursor(70, 100);
+    gfx->setTextColor(vga.rgb(255, 255, 255));
+    gfx->print("Press Big to start the game");
+
+    vga.show();
+
+    // Initialize game state
+
+    while(controller1.big == controller2.big || controller2.big == controller1.big){
+        Serial.print(controller1.big);
+        if (controller2.y == 0 || controller1.y == 0) {
+            resetGame();
+            return;
+        }
+    }
+
     while(true){
         runPongGame();
 
-        if (PonggameEnded){
+        if(PonggameEnded){
             break;
         }
     }
