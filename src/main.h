@@ -2,9 +2,14 @@
 #define MAIN_H
 
 #include <TFT_eSPI.h>
+#include "ESP32S3VGA.h"
+#include <GfxWrapper.h>
+
 
 extern TFT_eSPI tft;
-
+extern VGA vga;
+extern Mode mode;
+extern GfxWrapper<VGA>* gfx;
 // Structure definition
 typedef struct struct_message {
     int id;

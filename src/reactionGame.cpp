@@ -1,10 +1,11 @@
 #include <esp_now.h>
 #include <WiFi.h>
-#include <TFT_eSPI.h>
 #include <EEPROM.h>
 #include "main.h"
 #include "reactionGame.h"
 #include "audioFile.h"
+#include "ESP32S3VGA.h"
+#include <GfxWrapper.h>
 
 const int SwitchPin = 1;     // Button pin
 const int EEPROM_ADDR = 0;   // EEPROM address to store high score
@@ -13,8 +14,12 @@ unsigned long startTime = 0;
 bool gameStarted = false;
 bool gameEnded = false;
 unsigned long lastButtonPress = 0;  // For debouncing
-
 const int debounceDelay = 200;  // 200 ms debounce time
+
+// VGA setup
+extern VGA vga;  // Make sure VGA is initialized in your main code
+extern GfxWrapper<VGA>* gfx;  // Ensure the GfxWrapper for VGA is initialized
+extern Mode mode;  // VGA mode (defined elsewhere)
 
 void setHighScore(int highScore) {
     EEPROM.put(EEPROM_ADDR, highScore);  // Store high score in EEPROM
@@ -36,60 +41,78 @@ void processButtonClick(int& highScore) {
             // Start the game
             gameStarted = true;
             startTime = millis();
-            tft.fillScreen(TFT_BLACK);
-            tft.setTextColor(TFT_WHITE, TFT_BLACK);
-            tft.setTextSize(2);
-            tft.setCursor(20, 100);
-            tft.println("Wait for GREEN");
+
+            // Clear both VGA and TFT before drawing new content
+            vga.clear(vga.rgb(0, 0, 0));  // Clear VGA screen
+            gfx->setTextColor(vga.rgb(255, 255, 255));  // Set white text color for VGA
+            gfx->setTextSize(2);
+            gfx->setCursor(20, 100);  // Set text position
+            gfx->println("Wait for GREEN");
+            vga.show();  // Only show after everything is drawn
 
             // Random delay between 2 and 5 seconds
             delay(random(2000, 5000));
 
-            tft.fillScreen(TFT_GREEN);
-            tft.setTextColor(TFT_BLACK, TFT_GREEN);
-            tft.setTextSize(3);
-            tft.setCursor(60, 100);
-            tft.println("PRESS!");
+            // Set the screen to green for both VGA and TFT
+            vga.clear(vga.rgb(0, 255, 0));  // Green screen for VGA
+            gfx->setTextColor(vga.rgb(0, 0, 0));  // Black text on green
+            gfx->setTextSize(3);
+            gfx->setCursor(60, 100);  // Set text position
+            gfx->println("PRESS!");
+            vga.show();  // Only show after everything is drawn
 
             startTime = millis();  // Reset start time
         } else {
             // End the game and calculate reaction time
             unsigned long reactionTime = millis() - startTime;
 
-            tft.fillScreen(TFT_BLACK);
-            tft.setTextColor(TFT_WHITE, TFT_BLACK);
-            tft.setTextSize(2);
-            tft.setCursor(20, 60);
-            tft.print("Reaction time: ");
-            tft.print(reactionTime);
-            tft.println(" ms");
+            // Clear both VGA and TFT before showing reaction time and winner
+            vga.clear(vga.rgb(0, 0, 0));  // Clear VGA screen
+            gfx->setTextColor(vga.rgb(255, 255, 255));  // Set white text color for VGA
+            gfx->setTextSize(2);
+            gfx->setCursor(20, 60);  // Set text position
+            gfx->print("Reaction time: ");
+            gfx->print(reactionTime);
+            gfx->println(" ms");
+            vga.show();  // Only show after everything is drawn
+
+            // Clear the screen again before showing the winner
+            vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before showing winner
 
             // Display which controller won
-            tft.setCursor(20, 100);
+            gfx->setCursor(20, 100);  // Set text position for VGA
             if (controller1Pressed) {
-                tft.println("Controller 1 won!");
+                gfx->println("Controller 1 won!");
                 playCantina();
             } else if (controller2Pressed) {
-                tft.println("Controller 2 won!");
+                gfx->println("Controller 2 won!");
                 playCantina();
             }
-            delay(3000);
+            vga.show();  // Show content after drawing
+            delay(3000);  // Ensure enough time before resetting the screen
 
+            // Check if new high score
             if (reactionTime < highScore || highScore == 0) {
                 highScore = reactionTime;
                 setHighScore(highScore);
-                tft.setCursor(20, 140);
-                tft.println("New High Score!");
+
+                vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before updating high score
+                gfx->setCursor(20, 140);  // Set text position
+                gfx->println("New High Score!");
+                vga.show();  // Only show after everything is drawn
 
                 delay(1000);
             }
 
-            tft.setCursor(20, 180);
-            tft.print("High Score: ");
-            tft.print(highScore);
-            tft.println(" ms");
+            // Display high score on both VGA and TFT
+            vga.clear(vga.rgb(0, 0, 0));  // Clear VGA screen before showing high score
+            gfx->setCursor(20, 180);  // Set text position
+            gfx->print("High Score: ");
+            gfx->print(highScore);
+            gfx->println(" ms");
+            vga.show();  // Only show after everything is drawn
 
-            delay(1000);
+            delay(3000);  // Allow time for display to stabilize
 
             gameEnded = true;
         }
@@ -108,17 +131,16 @@ void runReactionGame() {
         return;
     }
 
-    // Register callback function
-    // esp_now_register_recv_cb(OnDataRecv);
-
     int highScore = 0;
     EEPROM.get(EEPROM_ADDR, highScore);  // Load the high score from EEPROM
 
-    tft.fillScreen(TFT_BLACK);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setTextSize(2);
-    tft.setCursor(10, 100);
-    tft.println("Press to start");
+    // Initial instructions on VGA and TFT
+    vga.clear(vga.rgb(0, 0, 0));  // Black screen for VGA
+    gfx->setTextColor(vga.rgb(255, 255, 255));  // White text
+    gfx->setTextSize(2);
+    gfx->setCursor(10, 100);
+    gfx->println("Press to start");
+    vga.show();
 
     // Main game loop
     while (!gameEnded) {
