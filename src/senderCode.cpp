@@ -4,10 +4,10 @@
 // #include <LittleFS.h>
 
 // #define buttonBig 1
-// #define buttonA 2
-// #define buttonB 3
-// #define buttonX 10
-// #define buttonY 11
+// #define buttonA 11
+// #define buttonB 2
+// #define buttonX 3
+// #define buttonY 10
 // #define powerEnable 15
 
 // // REPLACE WITH THE RECEIVER'S MAC Address
