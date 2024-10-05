@@ -4,6 +4,11 @@
 #include <TFT_eSPI.h>
 #include "ESP32S3VGA.h"
 #include <GfxWrapper.h>
+#include <EEPROM.h>
+#include <esp_now.h>
+#include <WiFi.h>
+
+
 
 
 extern TFT_eSPI tft;
@@ -23,6 +28,11 @@ typedef struct struct_message {
 extern struct_message myData;
 extern struct_message controller1;
 extern struct_message controller2;
+
+#define EEPROM_SIZE 4096
+#define REACTION_HIGH_SCORE_ADDRESS 0
+#define SNAKE_HIGH_SCORE_ADDRESS 4
+#define PONG_HIGH_SCORE_ADDRESS 8
 
 // Function prototypes
 void setup();
