@@ -33,16 +33,6 @@ bool PonggameEnded = false;
 int score1 = 0;
 int score2 = 0;
 
-// Struct to store incoming ESP-NOW data from controllers
-// struct struct_message {
-//     int id;
-//     int a; // Button A
-//     int b; // Button B
-// };
-
-// struct_message controller1;
-// struct_message controller2;
-
 // Function declarations
 void resetGame();
 void updatePaddles();
