@@ -42,13 +42,13 @@ void printMacAddress() {
     Serial.print("MAC Address: ");
     Serial.println(macStr);
 
-    vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
-    gfx->setCursor(0, 0);
-    gfx->setTextColor(vga.rgb(255, 255, 255));
-    gfx->println("MAC Address:");
-    gfx->println(macStr);
-    vga.show();
-    delay(5000);  // Display for 5 seconds
+    // vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
+    // gfx->setCursor(0, 0);
+    // gfx->setTextColor(vga.rgb(255, 255, 255));
+    // gfx->println("MAC Address:");
+    // gfx->println(macStr);
+    // vga.show();
+    // delay(5000);  // Display for 5 seconds
 }
 
 void displayGameOptions() {
@@ -87,15 +87,6 @@ void displayGameOptions() {
 
     vga.show();
     notSelected = 0;
-
-    // Display on LilyGo TFT
-    tft.fillScreen(TFT_BLACK);
-    tft.setTextColor(TFT_WHITE);
-    tft.setTextSize(2);
-    tft.setCursor(0, 0);
-    tft.println(option1);
-    tft.println(option2);
-    tft.println(option3);
 }
 
 void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
@@ -146,6 +137,11 @@ void setup() {
     // Initialize LilyGo TFT
     tft.init();
     tft.setRotation(1);
+    tft.fillScreen(TFT_BLACK);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setTextSize(4);
+    tft.setCursor(80, 50);
+    tft.println("Team 6");
 
     // Print MAC address
     printMacAddress();
@@ -167,10 +163,6 @@ void loop() {
             gfx->print("Snake Game Selected");
             vga.show();
 
-            tft.fillScreen(TFT_BLACK);
-            tft.setCursor(0, 0);
-            tft.println("Snake Game Selected");
-
             playCantina();
             setupSnakeGame();
 
@@ -181,11 +173,6 @@ void loop() {
             gfx->setCursor(mode.hRes / 2 - 75, mode.vRes / 2 + 10);
             gfx->print("to continue");
             vga.show();
-
-            tft.fillScreen(TFT_BLACK);
-            tft.setCursor(0, 0);
-            tft.println("Press any button");
-            tft.println("to continue");
 
             // Wait for button release
             while (controller2.y == 0 || controller1.y == 0) {
@@ -211,10 +198,6 @@ void loop() {
             gfx->print("Reaction Game Selected");
             vga.show();
 
-            tft.fillScreen(TFT_BLACK);
-            tft.setCursor(0, 0);
-            tft.println("Reaction Game Selected");
-
             playCantina();
             runReactionGame();
 
@@ -224,11 +207,6 @@ void loop() {
             gfx->setCursor(mode.hRes / 2 - 75, mode.vRes / 2 + 10);
             gfx->print("to continue");
             vga.show();
-
-            tft.fillScreen(TFT_BLACK);
-            tft.setCursor(0, 0);
-            tft.println("Press any button");
-            tft.println("to continue");
 
             // Wait for button release
             while (controller2.b == 0 || controller1.b == 0) {
@@ -255,10 +233,6 @@ void loop() {
             gfx->print("Pong Game Selected");
             vga.show();
 
-            tft.fillScreen(TFT_BLACK);
-            tft.setCursor(0, 0);
-            tft.println("Pong Game Selected");
-
             playCantina();
             setupPongGame();
 
@@ -268,11 +242,6 @@ void loop() {
             gfx->setCursor(mode.hRes / 2 - 75, mode.vRes / 2 + 10);
             gfx->print("to continue");
             vga.show();
-
-            tft.fillScreen(TFT_BLACK);
-            tft.setCursor(0, 0);
-            tft.println("Press any button");
-            tft.println("to continue");
 
             // Wait for button release
             while (controller2.a == 0 || controller1.a == 0) {

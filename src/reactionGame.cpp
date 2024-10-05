@@ -1,6 +1,5 @@
 #include <esp_now.h>
 #include <WiFi.h>
-#include <TFT_eSPI.h>
 #include <EEPROM.h>
 #include "main.h"
 #include "reactionGame.h"
@@ -51,12 +50,6 @@ void processButtonClick(int& highScore) {
             gfx->println("Wait for GREEN");
             vga.show();  // Only show after everything is drawn
 
-            tft.fillScreen(TFT_BLACK);  // Clear TFT screen
-            tft.setTextColor(TFT_WHITE, TFT_BLACK);
-            tft.setTextSize(2);
-            tft.setCursor(20, 100);
-            tft.println("Wait for GREEN");
-
             // Random delay between 2 and 5 seconds
             delay(random(2000, 5000));
 
@@ -67,12 +60,6 @@ void processButtonClick(int& highScore) {
             gfx->setCursor(60, 100);  // Set text position
             gfx->println("PRESS!");
             vga.show();  // Only show after everything is drawn
-
-            tft.fillScreen(TFT_GREEN);  // Green screen for TFT
-            tft.setTextColor(TFT_BLACK, TFT_GREEN);
-            tft.setTextSize(3);
-            tft.setCursor(60, 100);
-            tft.println("PRESS!");
 
             startTime = millis();  // Reset start time
         } else {
@@ -89,28 +76,16 @@ void processButtonClick(int& highScore) {
             gfx->println(" ms");
             vga.show();  // Only show after everything is drawn
 
-            tft.fillScreen(TFT_BLACK);  // Clear TFT screen
-            tft.setTextColor(TFT_WHITE, TFT_BLACK);
-            tft.setTextSize(2);
-            tft.setCursor(20, 60);
-            tft.print("Reaction time: ");
-            tft.print(reactionTime);
-            tft.println(" ms");
-
             // Clear the screen again before showing the winner
             vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before showing winner
-            tft.fillScreen(TFT_BLACK);  // Clear TFT before showing winner
 
             // Display which controller won
             gfx->setCursor(20, 100);  // Set text position for VGA
-            tft.setCursor(20, 100);   // Set text position for TFT
             if (controller1Pressed) {
                 gfx->println("Controller 1 won!");
-                tft.println("Controller 1 won!");
                 playCantina();
             } else if (controller2Pressed) {
                 gfx->println("Controller 2 won!");
-                tft.println("Controller 2 won!");
                 playCantina();
             }
             vga.show();  // Show content after drawing
@@ -126,10 +101,6 @@ void processButtonClick(int& highScore) {
                 gfx->println("New High Score!");
                 vga.show();  // Only show after everything is drawn
 
-                tft.fillScreen(TFT_BLACK);  // Clear TFT before updating high score
-                tft.setCursor(20, 140);
-                tft.println("New High Score!");
-
                 delay(1000);
             }
 
@@ -140,12 +111,6 @@ void processButtonClick(int& highScore) {
             gfx->print(highScore);
             gfx->println(" ms");
             vga.show();  // Only show after everything is drawn
-
-            tft.fillScreen(TFT_BLACK);  // Clear TFT screen before showing high score
-            tft.setCursor(20, 180);
-            tft.print("High Score: ");
-            tft.print(highScore);
-            tft.println(" ms");
 
             delay(3000);  // Allow time for display to stabilize
 
@@ -176,12 +141,6 @@ void runReactionGame() {
     gfx->setCursor(10, 100);
     gfx->println("Press to start");
     vga.show();
-
-    tft.fillScreen(TFT_BLACK);  // Black screen for TFT
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setTextSize(2);
-    tft.setCursor(10, 100);
-    tft.println("Press to start");
 
     // Main game loop
     while (!gameEnded) {
