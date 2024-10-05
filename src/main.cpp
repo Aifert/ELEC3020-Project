@@ -1,18 +1,9 @@
 // main.cpp
-#include <TFT_eSPI.h>
-#include <EEPROM.h>
-#include <WiFi.h>
-#include <esp_now.h>
 #include "snakeGame/Snake.h"
 #include "reactionGame.h"
 #include "main.h"
 #include "audioFile.h"
 #include "PongGame.h"
-#include "ESP32S3VGA.h"
-#include <GfxWrapper.h>
-
-#define EEPROM_SIZE 4096
-#define HIGH_SCORE_ADDRESS 0
 
 struct_message myData;
 struct_message controller1 = {1, 1, 1, 1, 1, 1};
@@ -120,7 +111,7 @@ void setup() {
         Serial.println("Failed to initialize EEPROM");
     } else {
         Serial.println("EEPROM initialized");
-        EEPROM.get(HIGH_SCORE_ADDRESS, highScore);
+        EEPROM.get(REACTION_HIGH_SCORE_ADDRESS, highScore);
         Serial.print("Loaded High Score: ");
         Serial.println(highScore);
     }

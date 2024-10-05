@@ -32,6 +32,11 @@ bool ready = 1;
 long readyTime = 0;
 int previousHowHard = -1;
 
+typedef struct snakehHighScores {
+    int size;
+    int speed;
+} snakeHighScores;
+
 
 // Button state variables
 bool lastBigButtonState1 = true;
@@ -88,23 +93,36 @@ void run() {
 
     checkGameOver();
     if (!gOver) {
-        gfx->drawRect(0, 0, 170, 170, vga.rgb(0, 255, 255));  // Draw the game border
+        // Draw the game border starting at (0, 50), matching the newGame image location
+        gfx->drawRect(0, 50, 170, 170, vga.rgb(0, 255, 255));  // Adjusted game border
 
-        // Draw the snake
+        // Display food collected next to the rectangle (right side)
+        gfx->setCursor(180, 60);  // Set cursor position for the food collection message
+        gfx->setTextColor(vga.rgb(255, 255, 255));  // Set text color to white
+        gfx->print("Food collected: ");  // Print the food collection message
+        gfx->print(String(size));  // Print the size
+
+        // Display speed next to the rectangle (below the food message)
+        gfx->setCursor(180, 80);  // Set cursor position for the remaining period
+        gfx->print("Speed: ");
+        gfx->print(String(500 - period));  // Print the remaining period
+
+        // Draw the snake within the adjusted rectangle
         for (int i = 0; i < size; i++) {
-            gfx->fillRect(x[i] * 10, y[i] * 10, 10, 10, vga.rgb(100, 255, 0));
-            gfx->fillRect(2 + x[i] * 10, 2 + y[i] * 10, 6, 6, vga.rgb(50, 150, 0));
+            gfx->fillRect(x[i] * 10, y[i] * 10 + 50, 10, 10, vga.rgb(100, 255, 0));  // Adjusted for new game rectangle
+            gfx->fillRect(2 + x[i] * 10, 2 + y[i] * 10 + 50, 6, 6, vga.rgb(50, 150, 0));  // Adjusted for new game rectangle
         }
 
-        // Draw the food
-        gfx->fillRect(foodX * 10 + 1, foodY * 10 + 1, 8, 8, vga.rgb(255, 0, 0));
-        gfx->fillRect(foodX * 10 + 3, foodY * 10 + 3, 4, 4, vga.rgb(255, 255, 0));
+        // Draw the food within the adjusted rectangle
+        gfx->fillRect(foodX * 10 + 1, foodY * 10 + 51, 8, 8, vga.rgb(255, 0, 0));  // Adjusted for new game rectangle
+        gfx->fillRect(foodX * 10 + 3, foodY * 10 + 53, 4, 4, vga.rgb(255, 255, 0));  // Adjusted for new game rectangle
     } else {
         gfx->drawRGBBitmap(50, 50, gameOver, 170, 170);  // Draw game over image
     }
 
     vga.show();
 }
+
 
 void runSnakeGame() {
     if (millis() > currentTime + period) {
@@ -152,17 +170,30 @@ void runSnakeGame() {
     }
 }
 
-// Add this helper function to draw the difficulty dot
-void drawDifficultyDot(int howHard) {
+void drawDifficultyDot(int howHard, snakeHighScores highScores) {
     int yPos;
 
-    // Redraw the newGame image before drawing the dot
+    // Load high scores from EEPROM
+    int highScoreFood = highScores.size;
+    int highScoreSpeed = highScores.speed;
+
+    // Clear the screen only once, not repeatedly
     vga.clear(vga.rgb(0x00, 0x00, 0x00));
-    gfx->drawRGBBitmap(50, 50, newGame, 170, 170);
+    gfx->drawRGBBitmap(0, 50, newGame, 170, 170);
+
+    // Display instructions
     gfx->setCursor(10, 10);
     gfx->setTextColor(vga.rgb(255, 255, 255));
-    gfx->print("Press Y to return the main menu");
+    gfx->print("< Press Y to return to the main menu");
 
+    // Display high scores
+    gfx->setCursor(175, 90);  // Adjusted to prevent overlap
+    gfx->print("Top food: ");
+    gfx->print(String(highScoreFood));
+
+    gfx->setCursor(175, 110);  // Adjusted to prevent overlap
+    gfx->print("Top speed: ");
+    gfx->print(String(highScoreSpeed));
 
     // Determine y-coordinate based on difficulty
     switch (howHard) {
@@ -170,52 +201,51 @@ void drawDifficultyDot(int howHard) {
             yPos = 120;
             break;
         case 1:  // Normal
-            yPos = 140;
+            yPos = 150;
             break;
         case 2:  // Hard
-            yPos = 160;
+            yPos = 170;
             break;
     }
 
-    // Only clear the previous dot
+    // Only clear the previous dot and draw the new one
     if (previousHowHard != -1) {
         int prevYPos;
         switch (previousHowHard) {
             case 0: prevYPos = 120; break;
             case 1: prevYPos = 150; break;
-            case 2: prevYPos = 160; break;
+            case 2: prevYPos = 170; break;
         }
-        gfx->fillCircle(78, prevYPos, 5, vga.rgb(0, 0, 0));  // Clear the previous dot
-
-        gfx->drawRGBBitmap(50, 50, newGame, 170, 170);  // Redraw the newGame screen
+        gfx->fillCircle(28, prevYPos, 5, vga.rgb(0, 0, 0));  // Clear the previous dot
     }
 
     // Draw the current dot
-    gfx->fillCircle(78, yPos, 5, vga.rgb(255, 0, 0));  // Draw the red dot at the new position
+    gfx->fillCircle(28, yPos, 5, vga.rgb(255, 0, 0));  // Draw the red dot at the new position
 
     // Store the current difficulty as the previous one
     previousHowHard = howHard;
 }
 
-
 void setupSnakeGame() {
     // Clear screen and draw the 'newGame' image
     vga.clear(vga.rgb(0x00, 0x00, 0x00));
-
-    gfx->drawRGBBitmap(50, 50, newGame, 170, 170);  // Display the newGame screen
+    gfx->drawRGBBitmap(0, 50, newGame, 170, 170);  // Display the newGame screen
     vga.show();
+
+    snakeHighScores highScores;
+    EEPROM.get(SNAKE_HIGH_SCORE_ADDRESS, highScores);
 
     size = 1;
     period = 200;
     howHard = 0;
     gOver = false;
 
-    drawDifficultyDot(howHard);
+    drawDifficultyDot(howHard, highScores);
     vga.show();
 
     // Wait for user input to select difficulty
     while (controller1.big == controller2.big) {
-        if(controller2.y == 0 || controller1.y == 0){
+        if (controller2.y == 0 || controller1.y == 0) {
             return;
         }
         if (controller2.b == 0 || controller1.b == 0) {
@@ -227,7 +257,7 @@ void setupSnakeGame() {
                 if (howHard == 3) howHard = 0;  // Wrap around to Easy after Hard
 
                 // Redraw the dot based on the new difficulty
-                drawDifficultyDot(howHard);
+                drawDifficultyDot(howHard, highScores);
                 vga.show();
 
                 // Adjust the game period based on difficulty
@@ -241,8 +271,6 @@ void setupSnakeGame() {
         delay(100);
     }
 
-
-
     y[0] = random(5, 15);
     getFood();
     delay(400);
@@ -254,6 +282,34 @@ void setupSnakeGame() {
 
         if (gOver == 1) {
             gameOverSound();
+
+            if (size > highScores.size && (500 - period > highScores.speed)) {
+                highScores.size = size;
+                highScores.speed = 500 - period;
+                EEPROM.put(SNAKE_HIGH_SCORE_ADDRESS, highScores);
+                EEPROM.commit();
+
+                vga.clear(vga.rgb(0x00, 0x00, 0x00));
+                gfx->setCursor(50, 50);
+                gfx->setTextColor(vga.rgb(255, 255, 255));
+                gfx->print("New High Score!");
+
+                vga.show();
+            } else {
+                vga.clear(vga.rgb(0x00, 0x00, 0x00));
+                gfx->setCursor(50, 50);
+                gfx->setTextColor(vga.rgb(255, 255, 255));
+                gfx->print("Previous High Score: ");
+                gfx->print(String(highScores.size));
+                gfx->setCursor(50, 70);
+                gfx->print("Previous High Speed: ");
+                gfx->print(String(highScores.speed));
+
+                vga.show();
+            }
+
+            delay(3500);
+
             size = 1;
             x[0] = 0;
             y[0] = random(5, 15);
@@ -261,7 +317,6 @@ void setupSnakeGame() {
             dirY = 0;
             gOver = 0;
 
-            delay(3500);
             break;
         }
     }

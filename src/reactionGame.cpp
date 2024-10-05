@@ -1,6 +1,5 @@
 #include <esp_now.h>
 #include <WiFi.h>
-#include <EEPROM.h>
 #include "main.h"
 #include "reactionGame.h"
 #include "audioFile.h"
@@ -8,7 +7,6 @@
 #include <GfxWrapper.h>
 
 const int SwitchPin = 1;     // Button pin
-const int EEPROM_ADDR = 0;   // EEPROM address to store high score
 
 unsigned long startTime = 0;
 bool gameStarted = false;
@@ -22,7 +20,7 @@ extern GfxWrapper<VGA>* gfx;  // Ensure the GfxWrapper for VGA is initialized
 extern Mode mode;  // VGA mode (defined elsewhere)
 
 void setHighScore(int highScore) {
-    EEPROM.put(EEPROM_ADDR, highScore);  // Store high score in EEPROM
+    EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, highScore);  // Store high score in EEPROM
     EEPROM.commit();  // Commit the EEPROM changes
 }
 
@@ -124,15 +122,8 @@ void processButtonClick(int& highScore) {
 }
 
 void runReactionGame() {
-    // Set up ESP-NOW
-    WiFi.mode(WIFI_STA);
-    if (esp_now_init() != ESP_OK) {
-        Serial.println("Error initializing ESP-NOW");
-        return;
-    }
-
     int highScore = 0;
-    EEPROM.get(EEPROM_ADDR, highScore);  // Load the high score from EEPROM
+    EEPROM.get(REACTION_HIGH_SCORE_ADDRESS, highScore);  // Load the high score from EEPROM
 
     // Initial instructions on VGA and TFT
     vga.clear(vga.rgb(0, 0, 0));  // Black screen for VGA
