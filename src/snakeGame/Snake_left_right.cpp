@@ -7,6 +7,7 @@
 #include "newGame.h"
 #include "Snake.h"
 #include "audioFile.h"
+#include "splitScreenSnakeGame.h"
 
 int size = 1;
 int y[120] = {0};
@@ -37,21 +38,21 @@ typedef struct snakehHighScores {
     int speed;
 } snakeHighScores;
 
-
-// Button state variables
 bool lastBigButtonState1 = true;
 bool currentBigButtonState1 = true;
 bool lastYButtonState1 = true;
 bool currentYButtonState1 = true;
-bool lastBButtonState1 = true;
+bool lastAButtonState1 = true;
 bool currentAButtonState1 = true;
 
 bool lastBigButtonState2 = true;
 bool currentBigButtonState2 = true;
 bool lastYButtonState2 = true;
 bool currentYButtonState2 = true;
-bool lastBButtonState2 = true;
+bool lastAButtonState2 = true;
 bool currentAButtonState2 = true;
+
+// Button state variables
 
 void getFood() {
     foodX = random(0, 17);
@@ -135,14 +136,14 @@ void runSnakeGame() {
     currentBigButtonState2 = controller2.big;
     lastYButtonState2 = currentYButtonState2;
     currentYButtonState2 = controller2.y;
-    lastBButtonState2 = currentAButtonState2;
+    lastAButtonState2 = currentAButtonState2;
     currentAButtonState2 = controller2.a;
 
     lastBigButtonState1 = currentBigButtonState1;
     currentBigButtonState1 = controller1.big;
     lastYButtonState1 = currentYButtonState1;
     currentYButtonState1 = controller1.y;
-    lastBButtonState1 = currentAButtonState1;
+    lastAButtonState1 = currentAButtonState1;
     currentAButtonState1 = controller1.a;
 
     if ((currentYButtonState1 == 0 && lastYButtonState1 == 1 && ready == 1)
@@ -155,8 +156,8 @@ void runSnakeGame() {
         readyTime = millis();
     }
 
-    if ((currentAButtonState1 == 0 && lastBButtonState1 == 1 && ready == 1)
-        || (currentAButtonState2 == 0 && lastBButtonState2 == 1 && ready == 1)) {
+    if ((currentAButtonState1 == 0 && lastAButtonState1 == 1 && ready == 1)
+        || (currentAButtonState2 == 0 && lastAButtonState2 == 1 && ready == 1)) {
         playSnakeRight();
         int temp = dirX;
         dirX = -dirY;
@@ -224,7 +225,10 @@ void drawDifficultyDot(int howHard, snakeHighScores highScores) {
             case 2: prevYPos = 170; break;
             case 3: prevYPos = 73; break;
         }
-        gfx->fillCircle(28, prevYPos, 5, vga.rgb(0, 0, 0));  // Clear the previous dot
+
+        if (previousHowHard != 3) {
+            gfx->fillCircle(28, prevYPos, 5, vga.rgb(0, 0, 0));  // Clear the previous red dot
+        }
     }
 
     // Draw the current dot
@@ -296,7 +300,18 @@ void setupSnakeGame() {
     dirY = 0;
 
     while (true) {
-        runSnakeGame();
+
+        if (howHard == 3){
+            vga.clear(0);
+            vga.show();
+            setupSplitScreenSnakeGame();
+
+            return;
+        }
+        else{
+            runSnakeGame();
+        }
+
 
         if (gOver == 1) {
             gameOverSound();
