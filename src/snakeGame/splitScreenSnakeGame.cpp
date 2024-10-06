@@ -13,8 +13,8 @@ int period1 = 200, period2 = 200;
 int dirX1 = 1, dirY1 = 0, dirX2 = 1, dirY2 = 0;
 bool gOver1 = 0, gOver2 = 0;
 int foodX1 = 0, foodY1 = 0, foodX2 = 0, foodY2 = 0;
-bool initialised1 = false;
-bool initialised2 = false;
+bool initialised = false;
+bool clearedOnce = false;
 
 // Terrain and snake colors for Player 1 and Player 2
 unsigned short colors1[2] = {0x48ED, 0x590F};
@@ -23,13 +23,13 @@ unsigned short colors2[2] = {0x7832, 0xA125};
 unsigned short snakeColor2[2] = {0x1267, 0x4856};
 
 void initializeSnakePositions() {
-    // Initialize Snake 1's random position within Player 1's area (1-8 for x and y)
-    x1[0] = random(1, 14);
-    yPos1[0] = random(1, 14);
+    // Initialize Snake 1's random position within Player 1's area (ensure at least 3 blocks from the border)
+    x1[0] = random(3, 12);  // Random X position between 3 and 12
+    yPos1[0] = random(3, 12);  // Random Y position between 3 and 12
 
-    // Initialize Snake 2's random position within Player 2's area (12-21 for x and y)
-    x2[0] = random(12, 25);  // Adjusted to be within the blue rectangle
-    yPos2[0] = random(1, 14); // Valid y-position
+    // Initialize Snake 2's random position within Player 2's area (ensure at least 3 blocks from the border)
+    x2[0] = random(18, 27);  // Random X position between 18 and 27 for Player 2's frame
+    yPos2[0] = random(3, 12);  // Random Y position between 3 and 12
 }
 
 // Helper functions for food placement
@@ -55,7 +55,7 @@ void getFood2() {
     bool validPosition;
     do {
         validPosition = true;
-        // Ensure food is placed within the 16-29 x range and 1-14 y range
+        // Ensure food is placed within the 15-29 x range and 1-14 y range
         foodX2 = random(15, 30);
         foodY2 = random(1, 15);
         // Ensure food is not on the snake's tail
@@ -145,6 +145,7 @@ void runPlayer1() {
         period1 = period1 - 1;
     }
 
+
     gfx->fillRect(0, 50, 150, 150, vga.rgb(0, 0, 0));  // Clear Player 1's area to be 150x150 pixels
     checkGameOver1();
     if (!gOver1) {
@@ -159,10 +160,6 @@ void runPlayer1() {
         gfx->print("Player 1 Game Over");
 
         gameOverSound();
-    }
-
-    if (initialised1){
-        vga.show();
     }
 }
 
@@ -185,10 +182,14 @@ void runPlayer2() {
     checkGameOver2();
     if (!gOver2) {
         gfx->drawRect(160, 50, 150, 150, vga.rgb(255, 0, 0));  // Draw Player 2's border (150x150)
+
+        // Adjust snake drawing for Player 2 (relative to Player 2's box starting at 160)
         for (int i = 0; i < size2; i++) {
-            gfx->fillRect(x2[i] * 10 + 160, yPos2[i] * 10 + 50, 10, 10, vga.rgb(0, 100, 255));  // Draw snake inside Player 2's area
+            gfx->fillRect((x2[i] - 15) * 10 + 160, yPos2[i] * 10 + 50, 10, 10, vga.rgb(0, 100, 255));  // Draw snake inside Player 2's area
         }
-        gfx->fillRect(foodX2 * 10 + 161, foodY2 * 10 + 51, 8, 8, vga.rgb(255, 0, 0));  // Draw food inside Player 2's area
+
+        // Adjust food drawing for Player 2
+        gfx->fillRect((foodX2 - 15) * 10 + 160, foodY2 * 10 + 51, 8, 8, vga.rgb(255, 0, 0));  // Draw food inside Player 2's area
     } else {
         gfx->setCursor(200, 160);  // Game over message for Player 2
         gfx->print("Player 2 Game Over");
@@ -196,16 +197,14 @@ void runPlayer2() {
         gameOverSound();
     }
 
-    if (initialised2){
-        vga.show();
-    }
 }
+
 
 // Run the split-screen snake game for two players
 void runSplitScreenSnakeGame() {
     if (millis() > currentTime1 + period1 && !gOver1) {
         runPlayer1();
-        runPlayer2();
+        // runPlayer2();
         currentTime1 = millis();
     }
 
@@ -230,52 +229,57 @@ void runSplitScreenSnakeGame() {
     updateDirectionPlayer1Left();
     updateDirectionPlayer1Right();
 
-    updateDirectionPlayer2Left();
-    updateDirectionPlayer2Right();
+    // updateDirectionPlayer2Left();
+    // updateDirectionPlayer2Right();
 
     if (millis() > readyTime + 100 && ready == 0) {
         ready = 1;
     }
 
+    vga.show();
+
+    delay(20);
+
 }
 
+// void drawSplitScreenMainMenu(){
+//     vga.clear(vga.rgb(0x00, 0x00, 0x00));
+
+//     if (!initialised){
+//         gfx->setCursor(10, 10);
+//         gfx->setTextColor(vga.rgb(255, 255, 255));
+//         gfx->print("< Press Y to return to the main menu");
+
+//         gfx->setCursor(40, 20);
+//         gfx->setTextColor(vga.rgb(255, 255, 255));
+//         gfx->print("Two-Player Snake Game");
+
+//         gfx->setCursor(40, 30);
+//         gfx->print("Press Big to start the game");
+
+//         Serial.print("drawing main menu\n");
+
+//         vga.show();
+//     }
+// }
+
+void clearTextArea() {
+    // Clear the space above the player areas (0 to 50 pixels) where text is displayed
+    gfx->fillRect(0, 0, 320, 50, vga.rgb(0, 0, 0));  // Clear top area (width 320, height 50)
+    clearedOnce = true; // Set the cleared flag to true
+
+}
 
 void setupSplitScreenSnakeGame() {
     size1 = 1, size2 = 1;
     dirX1 = 1, dirY1 = 0;
     dirX2 = 1, dirY2 = 0;
     gOver1 = 0, gOver2 = 0;
-    initialised1 = false;
-    initialised2 = false;
+    initialised = false;
 
-    vga.clear(vga.rgb(0x00, 0x00, 0x00));
-    gfx->fillScreen(vga.rgb(0,0,0));
+    // drawSplitScreenMainMenu();
 
-    // Display setup instructions at the top, away from the game areas
-    gfx->setCursor(10, 10);
-    gfx->setTextColor(vga.rgb(255, 255, 255));
-    gfx->print("< Press Y to return to the main menu");
-
-    gfx->setCursor(40, 20);
-    gfx->setTextColor(vga.rgb(255, 255, 255));
-    gfx->print("Two-Player Snake Game");
-
-    gfx->setCursor(40, 30);
-    gfx->print("Press Big to start the game");
-
-
-    initializeSnakePositions();
-
-    // Draw the initial game state for Player 1 and Player 2
-    getFood1();
-    getFood2();
-    runPlayer1();
-    runPlayer2();
-
-    vga.show();
-
-    initialised1 = true;
-    initialised2 = true;
+    initialised = true;
 
     // Wait for "Big" button to start the game
     while (controller1.big == controller2.big || controller2.big == controller1.big) {
@@ -283,27 +287,43 @@ void setupSplitScreenSnakeGame() {
             return;
         }
         delay(100);
+
     }
 
+
+    vga.clear(0);
+    vga.show();
+
+    initializeSnakePositions();
+
+    Serial.print("intialising snake positions");
+
+    getFood1();
+    getFood2();
     runPlayer1();
     runPlayer2();
 
-    playCantina();
-
-    vga.clear(vga.rgb(0x00, 0x00, 0x00));
-    gfx->fillScreen(vga.rgb(0,0,0));
-
     vga.show();
+
+    Serial.print("Starting game");
+
+    delay(2500);
+
+    // Maybe play game start here
+
+    playCantina();
 
     while (true) {
 
         runSplitScreenSnakeGame();
 
         if (gOver1 || gOver2) {
+
+            vga.clear(vga.rgb(0x00, 0x00, 0x00));
             delay(3000);
             // Reset game state if game ends
             if (gOver1 && !gOver2) {
-                gfx->fillScreen(vga.rgb(0, 0, 0));  // Clear screen
+                vga.clear(vga.rgb(0x00, 0x00, 0x00));
                 gfx->setCursor(100, 80);
                 gfx->setTextColor(vga.rgb(255, 255, 255));
                 gfx->print("Player 2 Wins!");
@@ -313,7 +333,7 @@ void setupSplitScreenSnakeGame() {
 
             // End the game if Player 2 loses
             if (gOver2 && !gOver1) {
-                gfx->fillScreen(vga.rgb(0, 0, 0));  // Clear screen
+                vga.clear(vga.rgb(0x00, 0x00, 0x00));
                 gfx->setCursor(100, 80);
                 gfx->setTextColor(vga.rgb(255, 255, 255));
                 gfx->print("Player 1 Wins!");
@@ -325,8 +345,7 @@ void setupSplitScreenSnakeGame() {
             dirX1 = 1, dirY1 = 0;
             dirX2 = 1, dirY2 = 0;
             gOver1 = 0, gOver2 = 0;
-            initialised1 = false;
-            initialised2 = false;
+            initialised = false;
             break;
         }
     }

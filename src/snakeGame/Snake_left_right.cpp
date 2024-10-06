@@ -303,9 +303,9 @@ void setupSnakeGame() {
 
         if (howHard == 3){
             vga.clear(vga.rgb(0x00, 0x00, 0x00));
-            gfx->fillScreen(vga.rgb(0,0,0));
 
             vga.show();
+
             setupSplitScreenSnakeGame();
 
             return;
