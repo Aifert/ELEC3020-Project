@@ -61,13 +61,10 @@ void getFood2() {
 }
 
 void initializeSnakePositions() {
-    // Initialize Snake 1's random position within Player 1's area (ensure at least 3 blocks from the border)
-    x1[0] = random(3, 12);  // Random X position between 3 and 12
-    yPos1[0] = random(3, 12);  // Random Y position between 3 and 12
-
-    // Initialize Snake 2's random position within Player 2's area (ensure at least 3 blocks from the border)
-    x2[0] = random(18, 27);  // Random X position between 18 and 27 for Player 2's frame
-    yPos2[0] = random(3, 12);  // Random Y position between 3 and 12
+    x1[0] = random(3, 12);
+    yPos1[0] = random(3, 12);
+    x2[0] = random(18, 27);
+    yPos2[0] = random(3, 12);
 
     getFood1();
     getFood2();
@@ -217,8 +214,6 @@ void runSplitScreenSnakeGame() {
         vga.show();
     }
 
-    // vga.show();
-    // Update directions based on player input
     // Controller 1
     lastBigButtonState1 = currentBigButtonState1;
     currentBigButtonState1 = controller1.big;
@@ -248,34 +243,6 @@ void runSplitScreenSnakeGame() {
 
 }
 
-// void drawSplitScreenMainMenu(){
-//     vga.clear(vga.rgb(0x00, 0x00, 0x00));
-
-//     if (!initialised){
-//         gfx->setCursor(10, 10);
-//         gfx->setTextColor(vga.rgb(255, 255, 255));
-//         gfx->print("< Press Y to return to the main menu");
-
-//         gfx->setCursor(40, 20);
-//         gfx->setTextColor(vga.rgb(255, 255, 255));
-//         gfx->print("Two-Player Snake Game");
-
-//         gfx->setCursor(40, 30);
-//         gfx->print("Press Big to start the game");
-
-//         Serial.print("drawing main menu\n");
-
-//         vga.show();
-//     }
-// }
-
-void clearTextArea() {
-    // Clear the space above the player areas (0 to 50 pixels) where text is displayed
-    gfx->fillRect(0, 0, 320, 50, vga.rgb(0, 0, 0));  // Clear top area (width 320, height 50)
-    clearedOnce = true; // Set the cleared flag to true
-
-}
-
 void setupSplitScreenSnakeGame() {
     size1 = 1, size2 = 1;
     dirX1 = 1, dirY1 = 0;
@@ -298,17 +265,10 @@ void setupSplitScreenSnakeGame() {
     runPlayer2();
 
     vga.show();
-    // Wait for "Big" button to start the game
-    while (controller1.big == controller2.big || controller2.big == controller1.big) {
-        if (controller2.y == 0 || controller1.y == 0) {
-            return;
-        }
-        delay(100);
 
-    }
+    delay(5000);
 
-    delay(2500);
-
+    // Play ready set go
     playCantina();
 
     while (true) {
