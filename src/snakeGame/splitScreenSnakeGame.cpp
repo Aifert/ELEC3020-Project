@@ -207,16 +207,17 @@ void runPlayer2() {
 // Run the split-screen snake game for two players
 void runSplitScreenSnakeGame() {
     if (millis() > currentTime1 + period1 && !gOver1) {
-        runPlayer1();;
+        runPlayer1();
         currentTime1 = millis();
+        // vga.show();
+    }
+    if (millis() > currentTime2 + period2 && !gOver2) {
+        runPlayer2();
+        currentTime2 = millis();
         vga.show();
     }
-    // if (millis() > currentTime2 + period2 && !gOver2) {
-    //     runPlayer2();
-    //     currentTime2 = millis();
-    //     vga.show();
-    // }
 
+    // vga.show();
     // Update directions based on player input
     // Controller 1
     lastBigButtonState1 = currentBigButtonState1;
@@ -294,7 +295,7 @@ void setupSplitScreenSnakeGame() {
     Serial.print("intialising snake positions");
 
     runPlayer1();
-    // runPlayer2();
+    runPlayer2();
 
     vga.show();
     // Wait for "Big" button to start the game
