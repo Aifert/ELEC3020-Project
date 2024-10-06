@@ -302,10 +302,8 @@ void setupSnakeGame() {
     while (true) {
 
         if (howHard == 3){
-            vga.clear(vga.rgb(0x00, 0x00, 0x00));
-
+            vga.clear(0);
             vga.show();
-
             setupSplitScreenSnakeGame();
 
             return;

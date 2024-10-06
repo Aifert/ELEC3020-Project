@@ -22,15 +22,7 @@ unsigned short snakeColor1[2] = {0x9FD3, 0x38C9};
 unsigned short colors2[2] = {0x7832, 0xA125};
 unsigned short snakeColor2[2] = {0x1267, 0x4856};
 
-void initializeSnakePositions() {
-    // Initialize Snake 1's random position within Player 1's area (ensure at least 3 blocks from the border)
-    x1[0] = random(3, 12);  // Random X position between 3 and 12
-    yPos1[0] = random(3, 12);  // Random Y position between 3 and 12
 
-    // Initialize Snake 2's random position within Player 2's area (ensure at least 3 blocks from the border)
-    x2[0] = random(18, 27);  // Random X position between 18 and 27 for Player 2's frame
-    yPos2[0] = random(3, 12);  // Random Y position between 3 and 12
-}
 
 // Helper functions for food placement
 void getFood1() {
@@ -66,6 +58,19 @@ void getFood2() {
             }
         }
     } while (!validPosition);
+}
+
+void initializeSnakePositions() {
+    // Initialize Snake 1's random position within Player 1's area (ensure at least 3 blocks from the border)
+    x1[0] = random(3, 12);  // Random X position between 3 and 12
+    yPos1[0] = random(3, 12);  // Random Y position between 3 and 12
+
+    // Initialize Snake 2's random position within Player 2's area (ensure at least 3 blocks from the border)
+    x2[0] = random(18, 27);  // Random X position between 18 and 27 for Player 2's frame
+    yPos2[0] = random(3, 12);  // Random Y position between 3 and 12
+
+    getFood1();
+    getFood2();
 }
 
 // Check if game is over for Player 1
@@ -145,7 +150,6 @@ void runPlayer1() {
         period1 = period1 - 1;
     }
 
-
     gfx->fillRect(0, 50, 150, 150, vga.rgb(0, 0, 0));  // Clear Player 1's area to be 150x150 pixels
     checkGameOver1();
     if (!gOver1) {
@@ -203,10 +207,15 @@ void runPlayer2() {
 // Run the split-screen snake game for two players
 void runSplitScreenSnakeGame() {
     if (millis() > currentTime1 + period1 && !gOver1) {
-        runPlayer1();
-        // runPlayer2();
+        runPlayer1();;
         currentTime1 = millis();
+        vga.show();
     }
+    // if (millis() > currentTime2 + period2 && !gOver2) {
+    //     runPlayer2();
+    //     currentTime2 = millis();
+    //     vga.show();
+    // }
 
     // Update directions based on player input
     // Controller 1
@@ -229,16 +238,12 @@ void runSplitScreenSnakeGame() {
     updateDirectionPlayer1Left();
     updateDirectionPlayer1Right();
 
-    // updateDirectionPlayer2Left();
-    // updateDirectionPlayer2Right();
+    updateDirectionPlayer2Left();
+    updateDirectionPlayer2Right();
 
     if (millis() > readyTime + 100 && ready == 0) {
         ready = 1;
     }
-
-    vga.show();
-
-    delay(20);
 
 }
 
@@ -279,8 +284,19 @@ void setupSplitScreenSnakeGame() {
 
     // drawSplitScreenMainMenu();
 
+    vga.clear(0);
+    vga.show();
+
     initialised = true;
 
+    initializeSnakePositions();
+
+    Serial.print("intialising snake positions");
+
+    runPlayer1();
+    // runPlayer2();
+
+    vga.show();
     // Wait for "Big" button to start the game
     while (controller1.big == controller2.big || controller2.big == controller1.big) {
         if (controller2.y == 0 || controller1.y == 0) {
@@ -290,26 +306,7 @@ void setupSplitScreenSnakeGame() {
 
     }
 
-
-    vga.clear(0);
-    vga.show();
-
-    initializeSnakePositions();
-
-    Serial.print("intialising snake positions");
-
-    getFood1();
-    getFood2();
-    runPlayer1();
-    runPlayer2();
-
-    vga.show();
-
-    Serial.print("Starting game");
-
     delay(2500);
-
-    // Maybe play game start here
 
     playCantina();
 
@@ -348,5 +345,7 @@ void setupSplitScreenSnakeGame() {
             initialised = false;
             break;
         }
+
+        delay(16);
     }
 }
