@@ -56,12 +56,14 @@ void displayGameOptions() {
     String option1 = "Press A for Pong Game";
     String option2 = "Press B for Reaction Game";
     String option3 = "Press Y for Snake Game";
+    String option4 = "Press Y for Snake Game";
 
     int screenWidth = mode.hRes;
     int teamY = 20;
     int option1Y = teamY + 30;
     int option2Y = option1Y + 30;
     int option3Y = option2Y + 30;
+    int option4Y = option3Y + 30;
 
     gfx->setTextColor(vga.rgb(255, 255, 255));
 
@@ -70,6 +72,7 @@ void displayGameOptions() {
     int option1Width = option1.length() * 8; // Assuming 8 pixels per character
     int option2Width = option2.length() * 8;
     int option3Width = option3.length() * 8;
+    int option4Width = option4.length() * 8;
 
     gfx->setCursor((screenWidth - teamWidth) / 2, teamY);
     gfx->print(team);
@@ -82,6 +85,9 @@ void displayGameOptions() {
 
     gfx->setCursor((screenWidth - option3Width) / 2, option3Y);
     gfx->print(option3);
+
+    gfx->setCursor((screenWidth - option4Width) / 2, option4Y);
+    gfx->print(option4);
 
     vga.show();
     notSelected = 0;
@@ -252,6 +258,14 @@ void loop() {
 
             notSelected = 1;
             break;
+        }
+
+        else if(controller2.big == 0 || controller1.big == 0){
+            vga.clear(vga.rgb(0x00, 0x00, 0x00));
+            gfx->setCursor(10, 10);
+            gfx->setTextColor(vga.rgb(255, 255, 255));
+            gfx->print("Game Leaderboard Selected");
+            vga.show();
         }
 
         delay(100); // Debounce delay
