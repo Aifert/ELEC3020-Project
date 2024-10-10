@@ -33,10 +33,6 @@ bool ready = 1;
 long readyTime = 0;
 int previousHowHard = -1;
 
-typedef struct snakehHighScores {
-    int size;
-    int speed;
-} snakeHighScores;
 
 bool lastBigButtonState1 = true;
 bool currentBigButtonState1 = true;
@@ -171,12 +167,12 @@ void runSnakeGame() {
     }
 }
 
-void drawDifficultyDot(int howHard, snakeHighScores highScores) {
+void drawDifficultyDot(int howHard, snakeHighScores highScores[]) {
     int yPos;
 
     // Load high scores from EEPROM
-    int highScoreFood = highScores.size;
-    int highScoreSpeed = highScores.speed;
+    int highScoreFood = highScores[0].size;
+    int highScoreSpeed = highScores[0].speed;
 
     // Clear the screen only once, not repeatedly
     vga.clear(vga.rgb(0x00, 0x00, 0x00));
@@ -253,8 +249,7 @@ void setupSnakeGame() {
     vga.clear(vga.rgb(0x00, 0x00, 0x00));
     gfx->drawRGBBitmap(0, 50, newGame, 170, 170);  // Display the newGame screen
     vga.show();
-
-    snakeHighScores highScores;
+ 
     EEPROM.get(SNAKE_HIGH_SCORE_ADDRESS, highScores);
 
     size = 1;
@@ -316,9 +311,15 @@ void setupSnakeGame() {
         if (gOver == 1) {
             gameOverSound();
 
-            if (size > highScores.size && (500 - period > highScores.speed)) {
-                highScores.size = size;
-                highScores.speed = 500 - period;
+            if (size > highScores[0].size && (500 - period > highScores[0].speed)) {
+                highScores[2].size = highScores[1].size;
+                highScores[1].size = highScores[0].size;
+                highScores[0].size = size;
+
+                highScores[2].speed = highScores[1].speed;
+                highScores[1].speed = highScores[0].speed;
+                highScores[0].speed = 500 - period;
+
                 EEPROM.put(SNAKE_HIGH_SCORE_ADDRESS, highScores);
                 EEPROM.commit();
 
@@ -328,15 +329,50 @@ void setupSnakeGame() {
                 gfx->print("New High Score!");
 
                 vga.show();
-            } else {
+            } 
+            else if(size > highScores[1].size && (500 - period > highScores[1].speed) && size < highScores[0].size && (500 - period < highScores[0].speed)){
+                highScores[2].size = highScores[1].size;
+                highScores[1].size = size;
+
+                highScores[2].speed = highScores[1].speed;
+                highScores[1].speed = 500 - period;
+
+                EEPROM.put(SNAKE_HIGH_SCORE_ADDRESS, highScores);
+                EEPROM.commit();
+
+                vga.clear(vga.rgb(0x00, 0x00, 0x00));
+                gfx->setCursor(50, 50);
+                gfx->setTextColor(vga.rgb(255, 255, 255));
+                gfx->print("You're ranked second!");
+
+                vga.show();
+            }
+
+            else if(size > highScores[2].size && (500 - period > highScores[2].speed) && size < highScores[1].size && (500 - period < highScores[1].speed)){
+                highScores[2].size = size;
+
+                highScores[2].speed = 500 - period;
+
+                EEPROM.put(SNAKE_HIGH_SCORE_ADDRESS, highScores);
+                EEPROM.commit();
+
+                vga.clear(vga.rgb(0x00, 0x00, 0x00));
+                gfx->setCursor(50, 50);
+                gfx->setTextColor(vga.rgb(255, 255, 255));
+                gfx->print("You're ranked third!");
+
+                vga.show();
+            }
+            
+            else {
                 vga.clear(vga.rgb(0x00, 0x00, 0x00));
                 gfx->setCursor(50, 50);
                 gfx->setTextColor(vga.rgb(255, 255, 255));
                 gfx->print("Previous High Score: ");
-                gfx->print(String(highScores.size));
+                gfx->print(String(highScores[0].size));
                 gfx->setCursor(50, 70);
                 gfx->print("Previous High Speed: ");
-                gfx->print(String(highScores.speed));
+                gfx->print(String(highScores[0].speed));
 
                 vga.show();
             }

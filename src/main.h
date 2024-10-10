@@ -31,11 +31,23 @@ extern struct_message controller2;
 
 #define EEPROM_SIZE 4096
 #define REACTION_HIGH_SCORE_ADDRESS 0
-#define SNAKE_HIGH_SCORE_ADDRESS 4
-#define PONG_HIGH_SCORE_ADDRESS 8
+#define SNAKE_HIGH_SCORE_ADDRESS 12
+#define PONG_HIGH_SCORE_ADDRESS 36
 
 // Function prototypes
 void setup();
 void loop();
 
+typedef struct snakeHighScores {
+    int size;
+    int speed;
+} snakeHighScores;
+
+snakeHighScores highScores[3];
+
+int reactionHighScores[3];
+
+
+
 #endif // MAIN_H
+
