@@ -4,6 +4,7 @@
 #include "main.h"
 #include "audioFile.h"
 #include "PongGame.h"
+#include "leaderboard.h"
 
 struct_message myData;
 struct_message controller1 = {1, 1, 1, 1, 1, 1};
@@ -266,6 +267,8 @@ void loop() {
             gfx->setTextColor(vga.rgb(255, 255, 255));
             gfx->print("Game Leaderboard Selected");
             vga.show();
+
+            showLeaderboard();
         }
 
         delay(100); // Debounce delay
