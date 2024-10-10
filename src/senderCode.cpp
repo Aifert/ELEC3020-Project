@@ -4,10 +4,10 @@
 // #include <LittleFS.h>
 
 // #define buttonBig 1
-// #define buttonA 2
-// #define buttonB 3
-// #define buttonX 10
-// #define buttonY 11
+// #define buttonA 11
+// #define buttonB 2
+// #define buttonX 3
+// #define buttonY 10
 // #define powerEnable 15
 
 // // REPLACE WITH THE RECEIVER'S MAC Address
@@ -27,7 +27,7 @@
 // } struct_message;
 
 // // Create a struct_message called myData
-// struct_message myData = {1, 1, 1, 1, 1, 1};
+// struct_message myData = {2, 1, 1, 1, 1, 1};
 
 // // Create peer interface
 // esp_now_peer_info_t peerInfo;
@@ -39,7 +39,6 @@
 // void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 //   Serial.print("\r\nLast Packet Send Status:\t");
 //   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-//   tft.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 // }
 
 // void setup() {
@@ -61,6 +60,10 @@
 //   tft.fillScreen(TFT_BLACK);
 //   tft.setTextColor(TFT_WHITE, TFT_BLACK);
 //   tft.setTextSize(2);
+
+//   // Print player 1 on the screen
+//   tft.setCursor(100, 50);  // Set cursor position
+//   tft.println("Player 2");
 
 //   // Set device as a Wi-Fi Station
 //   WiFi.mode(WIFI_STA);
@@ -89,7 +92,6 @@
 //   }
 
 //   Serial.println("Setup complete");
-//   tft.println("Setup complete");
 // }
 
 // void loop() {
@@ -119,17 +121,6 @@
 
 //   // Send message via ESP-NOW only if data has changed
 //   if (dataChanged) {
-//     tft.fillScreen(TFT_BLACK);
-//     tft.setCursor(0, 0);
-//     tft.println("Instruction sent:");
-//     Serial.println("Instruction sent:");
-
-//     tft.println("big: " + String(myData.big));
-//     tft.println("a: " + String(myData.a));
-//     tft.println("b: " + String(myData.b));
-//     tft.println("x: " + String(myData.x));
-//     tft.println("y: " + String(myData.y));
-
 //     Serial.println("big: " + String(myData.big));
 //     Serial.println("a: " + String(myData.a));
 //     Serial.println("b: " + String(myData.b));
@@ -137,13 +128,5 @@
 //     Serial.println("y: " + String(myData.y));
 
 //     result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-
-//     if (result == ESP_OK) {
-//       Serial.println("Sent with success");
-//       tft.println("Sent with success");
-//     } else {
-//       Serial.println("Error sending the data");
-//       tft.println("Error sending the data");
-//     }
 //   }
 // }
