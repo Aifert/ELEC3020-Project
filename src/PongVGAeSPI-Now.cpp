@@ -2,6 +2,7 @@
 #include <esp_now.h>
 #include "main.h"
 #include <WiFi.h> // For ESP-NOW functionality
+#include "audioFile.h"
 
 // VGA pin configuration
 // const PinConfig pins(-1, -1, -1, -1, 43, -1, -1, -1, -1, -1, 44, -1, -1, -1, -1, 18, 1, 2);
@@ -78,11 +79,13 @@ void updateBall() {
 
     // Ball goes out of bounds (left or right)
     if (ballX <= 0) {
+        pongLeftMiss();
         score2++;
         checkWinCondition();
         resetBall();
     }
     if (ballX >= screenWidth - ballSize) {
+        pongRightMiss();
         score1++;
         checkWinCondition();
         resetBall();
@@ -92,11 +95,13 @@ void updateBall() {
 void checkCollision() {
     // Ball hits paddle 1
     if (ballX <= paddle1X + paddleWidth && ballY >= paddle1Y && ballY <= paddle1Y + paddleHeight) {
+        playSnakeLeft();
         ballSpeedX = -ballSpeedX;
     }
 
     // Ball hits paddle 2
     if (ballX + ballSize >= paddle2X && ballY >= paddle2Y && ballY <= paddle2Y + paddleHeight) {
+        playSnakeRight();
         ballSpeedX = -ballSpeedX;
     }
 }
@@ -166,6 +171,7 @@ void runPongGame() {
         drawGame();       // Draw the game state on the screen
     } else {
         drawWinScreen();  // Display the win screen
+        gameOverSound();
     }
     delay(20);  // Control game speed
 }
