@@ -4,16 +4,6 @@
 #include <TFT_eSPI.h>
 #include <EEPROM.h>
 
-// Structure definition
-// typedef struct struct_message {
-//     int id;
-//     int big;
-//     int a;
-//     int b;
-//     int x;
-//     int y;
-// } struct_message;
-
 // Function prototypes
 void setHighScore(int highScore);
 void processButtonClick(int& highScore);

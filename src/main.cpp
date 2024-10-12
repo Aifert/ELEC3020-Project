@@ -37,13 +37,6 @@ void printMacAddress() {
     Serial.print("MAC Address: ");
     Serial.println(macStr);
 
-    // vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
-    // gfx->setCursor(0, 0);
-    // gfx->setTextColor(vga.rgb(255, 255, 255));
-    // gfx->println("MAC Address:");
-    // gfx->println(macStr);
-    // vga.show();
-    // delay(5000);  // Display for 5 seconds
 }
 
 void waitForButtonRelease(){
