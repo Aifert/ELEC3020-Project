@@ -23,6 +23,9 @@ VGA vga;
 Mode mode = Mode::MODE_320x240x60;
 GfxWrapper<VGA>* gfx = nullptr;
 
+snakeHighScores highScores[3];
+int reactionHighScores[3];
+
 // Function to print MAC address
 void printMacAddress() {
     uint8_t mac[6];
@@ -57,7 +60,7 @@ void displayGameOptions() {
     String option1 = "Press A for Pong Game";
     String option2 = "Press B for Reaction Game";
     String option3 = "Press Y for Snake Game";
-    String option4 = "Press Y for Snake Game";
+    String option4 = "Press Big for Leaderboard";
 
     int screenWidth = mode.hRes;
     int teamY = 20;
@@ -153,6 +156,19 @@ void setup() {
 
     // Display initial game options
     displayGameOptions();
+
+    // Reset high scores in EEPROM
+    memset(reactionHighScores, 0, sizeof(reactionHighScores));
+    EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, reactionHighScores);
+
+    memset(highScores, 0, sizeof(highScores));
+    EEPROM.put(SNAKE_HIGH_SCORE_ADDRESS, highScores);
+
+    int pongHighScores[3] = {0};
+    EEPROM.put(PONG_HIGH_SCORE_ADDRESS, pongHighScores);
+
+    EEPROM.commit();
+    Serial.println("All high scores reset in EEPROM");
 }
 
 void loop() {
@@ -260,15 +276,38 @@ void loop() {
             notSelected = 1;
             break;
         }
+        else if (controller2.big == 0 || controller1.big == 0) {
+            delay(50);
+            if (controller2.big == 0 || controller1.big == 0) {
+                vga.clear(vga.rgb(0x00, 0x00, 0x00));
+                gfx->setCursor(10, 10);
+                gfx->setTextColor(vga.rgb(255, 255, 255));
+                gfx->print("Game Leaderboard Selected");
+                vga.show();
 
-        else if(controller2.big == 0 || controller1.big == 0){
-            vga.clear(vga.rgb(0x00, 0x00, 0x00));
-            gfx->setCursor(10, 10);
-            gfx->setTextColor(vga.rgb(255, 255, 255));
-            gfx->print("Game Leaderboard Selected");
-            vga.show();
+                showLeaderboard();
 
-            showLeaderboard();
+                waitForButtonRelease();
+
+                vga.clear(vga.rgb(0x00, 0x00, 0x00));
+                gfx->setCursor(mode.hRes / 2 - 90, mode.vRes / 2 - 20);
+                gfx->print("Press any button");
+                gfx->setCursor(mode.hRes / 2 - 75, mode.vRes / 2 + 10);
+                gfx->print("to continue");
+                vga.show();
+
+                bool buttonPressed = false;
+                while (!buttonPressed) {
+                    if (controller2.a == 0 || controller2.b == 0 || controller2.x == 0 || controller2.y == 0 || controller2.big == 0 ||
+                        controller1.a == 0 || controller1.b == 0 || controller1.x == 0 || controller1.y == 0 || controller1.big == 0) {
+                        buttonPressed = true;
+                    }
+                    delay(50);
+                }
+
+                notSelected = 1;
+                break;
+            }
         }
 
         delay(100); // Debounce delay

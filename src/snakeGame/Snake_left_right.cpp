@@ -97,7 +97,7 @@ void run() {
         gfx->setCursor(180, 60);  // Set cursor position for the food collection message
         gfx->setTextColor(vga.rgb(255, 255, 255));  // Set text color to white
         gfx->print("Food collected: ");  // Print the food collection message
-        gfx->print(String(size));  // Print the size
+        gfx->print(String(size - 1));  // Print the size
 
         // Display speed next to the rectangle (below the food message)
         gfx->setCursor(180, 80);  // Set cursor position for the remaining period
@@ -249,7 +249,7 @@ void setupSnakeGame() {
     vga.clear(vga.rgb(0x00, 0x00, 0x00));
     gfx->drawRGBBitmap(0, 50, newGame, 170, 170);  // Display the newGame screen
     vga.show();
- 
+
     EEPROM.get(SNAKE_HIGH_SCORE_ADDRESS, highScores);
 
     size = 1;
@@ -329,7 +329,7 @@ void setupSnakeGame() {
                 gfx->print("New High Score!");
 
                 vga.show();
-            } 
+            }
             else if(size > highScores[1].size && (500 - period > highScores[1].speed) && size < highScores[0].size && (500 - period < highScores[0].speed)){
                 highScores[2].size = highScores[1].size;
                 highScores[1].size = size;
@@ -363,7 +363,7 @@ void setupSnakeGame() {
 
                 vga.show();
             }
-            
+
             else {
                 vga.clear(vga.rgb(0x00, 0x00, 0x00));
                 gfx->setCursor(50, 50);

@@ -8,9 +8,6 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
-
-
-
 extern TFT_eSPI tft;
 extern VGA vga;
 extern Mode mode;
@@ -43,9 +40,9 @@ typedef struct snakeHighScores {
     int speed;
 } snakeHighScores;
 
-snakeHighScores highScores[3];
+extern snakeHighScores highScores[3];
 
-int reactionHighScores[3];
+extern int reactionHighScores[3];
 
 
 

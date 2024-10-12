@@ -86,13 +86,9 @@ void processButtonClick(int highScoreArray[]) {
 
             // Check if new high score
             if (reactionTime < highScoreArray[0] || highScoreArray[0] == 0) {
-                highScoreArray[4] = highScoreArray[3];
-                highScoreArray[3] = highScoreArray[2];
-                highScoreArray[2] = highScoreArray[1];
-                highScoreArray[1] = highScoreArray[0];
-                highScoreArray[0] = reactionTime;
+                unsigned long newHighScoreArray[3] = {reactionTime, highScoreArray[0], highScoreArray[1]};
 
-                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, highScoreArray);  // Store high score in EEPROM
+                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, newHighScoreArray);  // Store high score in EEPROM
                 EEPROM.commit();  // Commit the EEPROM changes
 
                 vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before updating high score
@@ -105,13 +101,9 @@ void processButtonClick(int highScoreArray[]) {
 
             // Check if second fastest score
             else if (reactionTime < highScoreArray[1] || highScoreArray[1] == 0) {
-                // Reaction time is the second fastest, shift scores below it down
-                highScoreArray[4] = highScoreArray[3];
-                highScoreArray[3] = highScoreArray[2];
-                highScoreArray[2] = highScoreArray[1];
-                highScoreArray[1] = reactionTime;
+                unsigned long newHighScoreArray[3] = {highScoreArray[0], reactionTime, highScoreArray[1]};
 
-                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, highScoreArray);  // Store high score in EEPROM
+                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, newHighScoreArray);  // Store high score in EEPROM
                 EEPROM.commit();  // Commit the EEPROM changes
 
                 vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before updating high score
@@ -125,11 +117,9 @@ void processButtonClick(int highScoreArray[]) {
             // Check if third fastest time
             else if (reactionTime < highScoreArray[2] || highScoreArray[2] == 0) {
                 // Reaction time is the third fastest, shift scores below it down
-                highScoreArray[4] = highScoreArray[3];
-                highScoreArray[3] = highScoreArray[2];
-                highScoreArray[2] = reactionTime;
+                unsigned long newHighScoreArray[3] = {highScoreArray[0], highScoreArray[1], reactionTime};
 
-                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, highScoreArray);  // Store high score in EEPROM
+                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, newHighScoreArray);  // Store high score in EEPROM
                 EEPROM.commit();  // Commit the EEPROM changes
 
                 vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before updating high score
@@ -141,14 +131,14 @@ void processButtonClick(int highScoreArray[]) {
             }
 
             // Display high score on both VGA and TFT
-            vga.clear(vga.rgb(0, 0, 0));  // Clear VGA screen before showing high score
-            gfx->setCursor(20, 180);  // Set text position
-            gfx->print("High Score: ");
-            gfx->print(highScoreArray[0]);
-            gfx->println(" ms");
-            vga.show();  // Only show after everything is drawn
+            // vga.clear(vga.rgb(0, 0, 0));  // Clear VGA screen before showing high score
+            // gfx->setCursor(20, 180);  // Set text position
+            // gfx->print("High Score: ");
+            // gfx->print(highScoreArray[0]);
+            // gfx->println(" ms");
+            // vga.show();  // Only show after everything is drawn
 
-            delay(3000);  // Allow time for display to stabilize
+            // delay(3000);  // Allow time for display to stabilize
 
             gameEnded = true;
         }
