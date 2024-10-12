@@ -113,23 +113,7 @@ int melody[] = {
 
   // Cantina BAnd - Star wars
   // Score available at https://musescore.com/user/6795541/scores/1606876
-  NOTE_B4,-4, NOTE_E5,-4, NOTE_B5, -4, //NOTE_B4,-4, NOTE_E5,-4,
-//   NOTE_B4,8,  NOTE_E5,-4, NOTE_B4,8, REST,8,  NOTE_AS4,8, NOTE_B4,8,
-//   NOTE_B4,8,  NOTE_AS4,8, NOTE_B4,8, NOTE_A4,8, REST,8, NOTE_GS4,8, NOTE_A4,8, NOTE_G4,8,
-//   NOTE_G4,4,  NOTE_E4,-2,
-//   NOTE_B4,-4, NOTE_E5,-4, NOTE_B4,-4, NOTE_E5,-4,
-//   NOTE_B4,8,  NOTE_E5,-4, NOTE_B4,8, REST,8,  NOTE_AS4,8, NOTE_B4,8,
-
-//   NOTE_A4,-4, NOTE_A4,-4, NOTE_GS4,8, NOTE_A4,-4,
-//   NOTE_D5,8,  NOTE_C5,-4, NOTE_B4,-4, NOTE_A4,-4,
-//   NOTE_B4,-4, NOTE_E5,-4, NOTE_B4,-4, NOTE_E5,-4,
-//   NOTE_B4,8,  NOTE_E5,-4, NOTE_B4,8, REST,8,  NOTE_AS4,8, NOTE_B4,8,
-//   NOTE_D5,4, NOTE_D5,-4, NOTE_B4,8, NOTE_A4,-4,
-//   NOTE_G4,-4, NOTE_E4,-2,
-//   NOTE_E4, 2, NOTE_G4,2,
-//   NOTE_B4, 2, NOTE_D5,2,
-
-//   NOTE_F5, -4, NOTE_E5,-4, NOTE_AS4,8, NOTE_AS4,8, NOTE_B4,4, NOTE_G4,4,
+  NOTE_C4,-4, NOTE_E4,-4, NOTE_G4, -4, NOTE_C5, -4
 };
 
 int melody2[] = {
@@ -143,12 +127,29 @@ int melody3[] = {
 int melody4[] = {
     NOTE_CS4, 4, NOTE_C4, 4, NOTE_B3, 4, NOTE_AS3, 1,
 };
+
+int melody5[] = {
+  NOTE_B4, -4, NOTE_AS4, -4,
+};
+
+int melody6[] = {
+  NOTE_E4, -4, NOTE_DS4, -4,
+};
+
+int melody7[] = {
+  NOTE_E4, 4, NOTE_E4, 8, NOTE_E4, 8, NOTE_A4, 1,
+};
+
 // sizeof gives the number of bytes, each int value is composed of two bytes (16 bits)
 // there are two values per note (pitch and duration), so for each note there are four bytes
 int notes = sizeof(melody) / sizeof(melody[0]) / 2;
 int notes2 = sizeof(melody2) / sizeof(melody2[0]) / 2;
 int notes3 = sizeof(melody3) / sizeof(melody3[0]) / 2;
 int notes4 = sizeof(melody4) / sizeof(melody4[0]) / 2;
+int notes5 = sizeof(melody5) / sizeof(melody5[0]) / 2;
+int notes6 = sizeof(melody6) / sizeof(melody6[0]) / 2;
+int notes7 = sizeof(melody7) / sizeof(melody7[0]) / 2;
+
 
 // this calculates the duration of a whole note in ms
 int wholenote = (60000 * 2) / tempo;
@@ -254,6 +255,87 @@ void gameOverSound(){
 
     // we only play the note for 90% of the duration, leaving 10% as a pause
     tone(buzzer, melody4[thisNote], noteDuration*0.9);
+
+    // Wait for the specief duration before playing the next note.
+    delay(noteDuration);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzer);
+  }
+}
+
+void pongLeftMiss(){
+     // iterate over the notes of the melody.
+  // Remember, the array is twice the number of notes (notes + durations)
+  for (int thisNote = 0; thisNote < notes4 * 2; thisNote = thisNote + 2) {
+
+    // calculates the duration of each note
+    divider = melody5[thisNote + 1];
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // increases the duration in half for dotted notes
+    }
+
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    tone(buzzer, melody5[thisNote], noteDuration*0.6);
+
+    // Wait for the specief duration before playing the next note.
+    delay(noteDuration);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzer);
+  }
+}
+
+void pongRightMiss(){
+     // iterate over the notes of the melody.
+  // Remember, the array is twice the number of notes (notes + durations)
+  for (int thisNote = 0; thisNote < notes4 * 2; thisNote = thisNote + 2) {
+
+    // calculates the duration of each note
+    divider = melody6[thisNote + 1];
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // increases the duration in half for dotted notes
+    }
+
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    tone(buzzer, melody6[thisNote], noteDuration*0.6);
+
+    // Wait for the specief duration before playing the next note.
+    delay(noteDuration);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzer);
+  }
+}
+
+void gameWinSound(){
+     // iterate over the notes of the melody.
+  // Remember, the array is twice the number of notes (notes + durations)
+  for (int thisNote = 0; thisNote < notes4 * 2; thisNote = thisNote + 2) {
+
+    // calculates the duration of each note
+    divider = melody7[thisNote + 1];
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // increases the duration in half for dotted notes
+    }
+
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    tone(buzzer, melody7[thisNote], noteDuration*0.9);
 
     // Wait for the specief duration before playing the next note.
     delay(noteDuration);

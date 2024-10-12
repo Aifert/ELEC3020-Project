@@ -81,10 +81,10 @@ void processButtonClick(int& highScore) {
             gfx->setCursor(20, 100);  // Set text position for VGA
             if (controller1Pressed) {
                 gfx->println("Controller 1 won!");
-                playCantina();
+                gameWinSound();
             } else if (controller2Pressed) {
                 gfx->println("Controller 2 won!");
-                playCantina();
+                gameWinSound();
             }
             vga.show();  // Show content after drawing
             delay(3000);  // Ensure enough time before resetting the screen
