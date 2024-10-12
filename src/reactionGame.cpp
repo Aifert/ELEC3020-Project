@@ -19,12 +19,7 @@ extern VGA vga;  // Make sure VGA is initialized in your main code
 extern GfxWrapper<VGA>* gfx;  // Ensure the GfxWrapper for VGA is initialized
 extern Mode mode;  // VGA mode (defined elsewhere)
 
-void setHighScore(int highScore) {
-    EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, highScore);  // Store high score in EEPROM
-    EEPROM.commit();  // Commit the EEPROM changes
-}
-
-void processButtonClick(int& highScore) {
+void processButtonClick(int highScoreArray[]) {
     bool controller1Pressed = controller1.big == 0;
     bool controller2Pressed = controller2.big == 0;
     bool wirelessButtonState = controller1Pressed || controller2Pressed;
@@ -90,9 +85,11 @@ void processButtonClick(int& highScore) {
             delay(3000);  // Ensure enough time before resetting the screen
 
             // Check if new high score
-            if (reactionTime < highScore || highScore == 0) {
-                highScore = reactionTime;
-                setHighScore(highScore);
+            if (reactionTime < highScoreArray[0] || highScoreArray[0] == 0) {
+                unsigned long newHighScoreArray[3] = {reactionTime, highScoreArray[0], highScoreArray[1]};
+
+                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, newHighScoreArray);  // Store high score in EEPROM
+                EEPROM.commit();  // Commit the EEPROM changes
 
                 vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before updating high score
                 gfx->setCursor(20, 140);  // Set text position
@@ -102,15 +99,46 @@ void processButtonClick(int& highScore) {
                 delay(1000);
             }
 
-            // Display high score on both VGA and TFT
-            vga.clear(vga.rgb(0, 0, 0));  // Clear VGA screen before showing high score
-            gfx->setCursor(20, 180);  // Set text position
-            gfx->print("High Score: ");
-            gfx->print(highScore);
-            gfx->println(" ms");
-            vga.show();  // Only show after everything is drawn
+            // Check if second fastest score
+            else if (reactionTime < highScoreArray[1] || highScoreArray[1] == 0) {
+                unsigned long newHighScoreArray[3] = {highScoreArray[0], reactionTime, highScoreArray[1]};
 
-            delay(3000);  // Allow time for display to stabilize
+                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, newHighScoreArray);  // Store high score in EEPROM
+                EEPROM.commit();  // Commit the EEPROM changes
+
+                vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before updating high score
+                gfx->setCursor(20, 140);  // Set text position
+                gfx->println("Second Fastest Time!");
+                vga.show();  // Only show after everything is drawn
+
+                delay(1000);
+            }
+
+            // Check if third fastest time
+            else if (reactionTime < highScoreArray[2] || highScoreArray[2] == 0) {
+                // Reaction time is the third fastest, shift scores below it down
+                unsigned long newHighScoreArray[3] = {highScoreArray[0], highScoreArray[1], reactionTime};
+
+                EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, newHighScoreArray);  // Store high score in EEPROM
+                EEPROM.commit();  // Commit the EEPROM changes
+
+                vga.clear(vga.rgb(0, 0, 0));  // Clear VGA before updating high score
+                gfx->setCursor(20, 140);  // Set text position
+                gfx->println("Third Fastest Time!");
+                vga.show();  // Only show after everything is drawn
+
+                delay(1000);
+            }
+
+            // Display high score on both VGA and TFT
+            // vga.clear(vga.rgb(0, 0, 0));  // Clear VGA screen before showing high score
+            // gfx->setCursor(20, 180);  // Set text position
+            // gfx->print("High Score: ");
+            // gfx->print(highScoreArray[0]);
+            // gfx->println(" ms");
+            // vga.show();  // Only show after everything is drawn
+
+            // delay(3000);  // Allow time for display to stabilize
 
             gameEnded = true;
         }
@@ -122,8 +150,7 @@ void processButtonClick(int& highScore) {
 }
 
 void runReactionGame() {
-    int highScore = 0;
-    EEPROM.get(REACTION_HIGH_SCORE_ADDRESS, highScore);  // Load the high score from EEPROM
+    EEPROM.get(REACTION_HIGH_SCORE_ADDRESS, reactionHighScores);  // Load the high score from EEPROM
 
     // Initial instructions on VGA and TFT
     vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
@@ -148,7 +175,7 @@ void runReactionGame() {
         }
     }
     while (!gameEnded) {
-        processButtonClick(highScore);
+        processButtonClick(reactionHighScores);
         delay(10);  // Small delay to prevent excessive CPU usage
     }
 
