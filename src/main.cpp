@@ -5,6 +5,7 @@
 #include "audioFile.h"
 #include "PongGame.h"
 #include "leaderboard.h"
+#include <Arduino.h>
 
 struct_message myData;
 struct_message controller1 = {1, 1, 1, 1, 1, 1};
@@ -25,6 +26,49 @@ GfxWrapper<VGA>* gfx = nullptr;
 
 snakeHighScores highScores[3];
 int reactionHighScores[3];
+
+// Replace the Star struct with a Toast struct
+const int TOAST_COUNT = 15;
+struct Toast {
+    int x, y;
+    int speed;
+    int size;
+    uint16_t color;
+};
+Toast toasts[TOAST_COUNT];
+
+// Define an array of colors
+const uint16_t COLORS[] = {
+    static_cast<uint16_t>(vga.rgb(255, 0, 0)),    // Red
+    static_cast<uint16_t>(vga.rgb(0, 255, 0)),    // Green
+    static_cast<uint16_t>(vga.rgb(0, 0, 255)),    // Blue
+    static_cast<uint16_t>(vga.rgb(255, 255, 0)),  // Yellow
+    static_cast<uint16_t>(vga.rgb(255, 0, 255)),  // Magenta
+    static_cast<uint16_t>(vga.rgb(0, 255, 255)),  // Cyan
+    static_cast<uint16_t>(vga.rgb(255, 128, 0)),  // Orange
+    static_cast<uint16_t>(vga.rgb(128, 0, 255))   // Purple
+};
+
+const int COLOR_COUNT = sizeof(COLORS) / sizeof(COLORS[0]);
+
+// Modify this function to initialize the toasts with predefined colors
+void initToasts() {
+    for (int i = 0; i < TOAST_COUNT; i++) {
+        toasts[i].x = random(mode.hRes);
+        toasts[i].y = random(mode.vRes);
+        toasts[i].speed = random(1, 3);
+        toasts[i].size = random(10, 20);
+        toasts[i].color = COLORS[random(COLOR_COUNT)];
+    }
+}
+
+// Add this function to draw a simple toast shape
+void drawToast(int x, int y, int size, uint16_t color) {
+    int half_size = size / 2;
+    gfx->fillRect(x - half_size, y - half_size, size, size, color);
+    gfx->fillCircle(x - half_size, y - half_size, half_size / 2, color);
+    gfx->fillCircle(x + half_size, y - half_size, half_size / 2, color);
+}
 
 // Function to print MAC address
 void printMacAddress() {
@@ -48,7 +92,17 @@ void waitForButtonRelease(){
 
 void displayGameOptions() {
     gfx->setTextSize(1);
-    vga.clear(vga.rgb(0x00, 0x00, 0x00));  // Clear screen (black background)
+
+    // Draw animated toast background
+    vga.clear(vga.rgb(0, 0, 0));  // Black background
+    for (int i = 0; i < TOAST_COUNT; i++) {
+        drawToast(toasts[i].x, toasts[i].y, toasts[i].size, toasts[i].color);
+        toasts[i].y = (toasts[i].y + toasts[i].speed) % (mode.vRes + toasts[i].size);
+        if (toasts[i].y < -toasts[i].size) {
+            toasts[i].y = mode.vRes + toasts[i].size;
+        }
+    }
+
     String team = "Team 6";
     String option1 = "Press A for Pong Game";
     String option2 = "Press B for Reaction Game";
@@ -62,7 +116,7 @@ void displayGameOptions() {
     int option3Y = option2Y + 30;
     int option4Y = option3Y + 30;
 
-    gfx->setTextColor(vga.rgb(255, 255, 255));
+    gfx->setTextColor(vga.rgb(255, 255, 255));  // White text
 
     // Calculate text width manually
     int teamWidth = team.length() * 16; // Assuming 8 pixels per character
@@ -147,21 +201,24 @@ void setup() {
     // Print MAC address
     printMacAddress();
 
+    // Initialize toasts instead of stars
+    initToasts();
+
     // Display initial game options
     displayGameOptions();
 
-    // Reset high scores in EEPROM
-    memset(reactionHighScores, 0, sizeof(reactionHighScores));
-    EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, reactionHighScores);
+    // // Reset high scores in EEPROM
+    // memset(reactionHighScores, 0, sizeof(reactionHighScores));
+    // EEPROM.put(REACTION_HIGH_SCORE_ADDRESS, reactionHighScores);
 
-    memset(highScores, 0, sizeof(highScores));
-    EEPROM.put(SNAKE_HIGH_SCORE_ADDRESS, highScores);
+    // memset(highScores, 0, sizeof(highScores));
+    // EEPROM.put(SNAKE_HIGH_SCORE_ADDRESS, highScores);
 
-    int pongHighScores[3] = {0};
-    EEPROM.put(PONG_HIGH_SCORE_ADDRESS, pongHighScores);
+    // int pongHighScores[3] = {0};
+    // EEPROM.put(PONG_HIGH_SCORE_ADDRESS, pongHighScores);
 
-    EEPROM.commit();
-    Serial.println("All high scores reset in EEPROM");
+    // EEPROM.commit();
+    // Serial.println("All high scores reset in EEPROM");
 }
 
 void loop() {
@@ -170,6 +227,9 @@ void loop() {
     }
 
     while (!notSelected) {
+        // Update and redraw the background
+        displayGameOptions();
+
         if (controller2.y == 0 || controller1.y == 0) {
             vga.clear(vga.rgb(0x00, 0x00, 0x00));
             gfx->setCursor(10, 10);
@@ -303,7 +363,7 @@ void loop() {
             }
         }
 
-        delay(100); // Debounce delay
+        delay(50); // Adjust this delay to control animation speed
     }
 
     // Return to main menu
@@ -311,4 +371,3 @@ void loop() {
         displayGameOptions();
     }
 }
-

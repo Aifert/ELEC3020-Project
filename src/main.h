@@ -7,6 +7,7 @@
 #include <EEPROM.h>
 #include <esp_now.h>
 #include <WiFi.h>
+#include "toast.h"
 
 extern TFT_eSPI tft;
 extern VGA vga;
